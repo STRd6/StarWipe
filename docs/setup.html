@@ -37,7 +37,12 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># For debug purposes</span>
 global.PACKAGE = PACKAGE
-global.require = require</code></pre>
+global.require = require
+
+<span class="comment"># TODO: HAX</span>
+{extend} = require <span class="string">"dust/util"</span>
+extend Object,
+  extend: extend</code></pre>
 </div>
         </li>
         

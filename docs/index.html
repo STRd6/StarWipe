@@ -51,7 +51,17 @@ engine.add <span class="string">"Puppet"</span>,
   x: <span class="number">500</span>
   y: <span class="number">278</span>
   width: <span class="number">100</span>
-  height: <span class="number">100</span></code></pre>
+  height: <span class="number">100</span>
+
+$(<span class="string">"body"</span>).pasteImageReader ({dataURL, file}) -&gt;
+
+  <span class="comment"># TODO: Store locally</span>
+  <span class="comment"># TODO: Use filesystem API :(</span>
+  <span class="comment"># TODO: Sync on addressable</span>
+
+  <span class="comment"># Add object to screen</span>
+  engine.add <span class="string">"Puppet"</span>,
+    spriteURL: dataURL</code></pre>
 </div>
         </li>
         
