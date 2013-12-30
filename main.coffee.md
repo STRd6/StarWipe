@@ -19,3 +19,13 @@ Star Wipe
       y: 278
       width: 100
       height: 100
+
+    $("body").pasteImageReader ({dataURL, file}) ->
+
+      # TODO: Store locally
+      # TODO: Use filesystem API :(
+      # TODO: Sync on addressable
+
+      # Add object to screen
+      engine.add "Puppet",
+        spriteURL: dataURL
