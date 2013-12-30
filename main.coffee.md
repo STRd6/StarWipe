@@ -24,8 +24,22 @@ Star Wipe
 
       # TODO: Store locally
       # TODO: Use filesystem API :(
-      # TODO: Sync on addressable
+
+      # Sync on addressable
+      uploadBlobby(file)
 
       # Add object to screen
       engine.add "Puppet",
         spriteURL: dataURL
+
+    uploadBlobby = (blob) ->
+      url = "http://addressable.herokuapp.com"
+      # url = "http://locohost:9393"
+
+      form = new FormData
+      
+      form.append "data", blob
+      
+      request = new XMLHttpRequest()
+      request.open("POST", url)
+      request.send(form)
