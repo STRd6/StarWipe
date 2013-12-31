@@ -53,7 +53,7 @@ key = <span class="string">"image_sha_names"</span>
 <span class="comment"># If you call crossOrigin, but use the url in a normal request rather than a cross</span>
 <span class="comment"># origin request CloudFront will cache the wrong headers making it unusable, so don't</span>
 <span class="comment"># make a mistake!</span>
-<span class="function"><span class="title">url</span></span> = (sha, crossOrigin=<span class="literal">false</span>) -&gt;
+<span class="function"><span class="title">urlForSha</span></span> = (sha, crossOrigin=<span class="literal">false</span>) -&gt;
   n = parseInt(sha.substring(<span class="number">0</span>, <span class="number">1</span>), <span class="number">16</span>) % <span class="number">4</span>
 
   url = <span class="string">"http://a<span class="subst">#{n}</span>.pixiecdn.com/<span class="subst">#{sha}</span>"</span>
@@ -63,18 +63,21 @@ key = <span class="string">"image_sha_names"</span>
   <span class="keyword">else</span>
     url
 
-module.exports =
-  sprite: (name) -&gt;
+module.exports = Locosto = 
+  url: (name) -&gt;
     <span class="keyword">if</span> sha = names[name]
-      Sprite.load url(sha)
+      urlForSha(sha)
+
+  sprite: (name) -&gt;
+    <span class="keyword">if</span> url = Locosto.url(name)
+      Sprite.load url
 
   store: (file) -&gt;
-    <span class="comment"># TODO: S</span>
     blobTypedArray file, (arrayBuffer) -&gt;
       sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
       console.log sha
 
-      <span class="comment"># TODO: Save SHA as a key</span>
+      <span class="comment"># Save SHA as a key</span>
       remember(sha, sha)
 
       uploadBlobby(file)

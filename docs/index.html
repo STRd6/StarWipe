@@ -47,25 +47,30 @@ engine = Dust.init
   width: width
   height: height
 
-engine.add <span class="string">"Puppet"</span>,
-  x: <span class="number">500</span>
-  y: <span class="number">278</span>
-  width: <span class="number">100</span>
-  height: <span class="number">100</span>
+engine.include require <span class="string">"./draggin"</span>
 
 <span class="function"><span class="title">handleImage</span></span> = ({dataURL, file}) -&gt;
-
-  <span class="comment"># TODO: Store locally</span>
-
   <span class="comment"># Sync on addressable</span>
   Locosto.store(file)
 
   <span class="comment"># Add object to screen</span>
   engine.add <span class="string">"Puppet"</span>,
+    x: width/<span class="number">2</span>
+    y: height/<span class="number">2</span>
+    width: <span class="number">100</span>
+    height: <span class="number">100</span>
     spriteURL: dataURL
 
 $(document).pasteImageReader handleImage
-$(document).dropImageReader handleImage</code></pre>
+$(document).dropImageReader handleImage
+
+Object.keys(Locosto.names()).forEach (name) -&gt;
+  engine.add <span class="string">"Puppet"</span>,
+    x: width/<span class="number">2</span>
+    y: height/<span class="number">2</span>
+    width: <span class="number">100</span>
+    height: <span class="number">100</span>
+    spriteURL: Locosto.url(name)</code></pre>
 </div>
         </li>
         
