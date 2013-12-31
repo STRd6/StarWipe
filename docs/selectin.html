@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>draggin</title>
+  <title>selectin</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="draggin">Draggin</h1>
+              <h1 id="selectin">Selectin</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,37 +32,37 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>An engine module that allows &quot;drag to move&quot; for objects.</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
-  active = <span class="literal">null</span>
-  startPosition = <span class="literal">null</span>
-  objectStartPosition = <span class="literal">null</span>
+            <div class="content"><pre><code class="lang-coffeescript">{extend} = require <span class="string">"dust/util"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  selected = <span class="literal">null</span>
+  bounds =
+    color: <span class="string">"rgba(255, 0, 255, 0.5)"</span>
 
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
     <span class="keyword">if</span> mousePressed.left
       startPosition = mousePosition.copy()
-      <span class="keyword">if</span> active = self.objectAtScreenPosition(startPosition)
-        objectStartPosition = active.position()
-    <span class="keyword">else</span> <span class="keyword">if</span> mouseDown.left
-      <span class="comment"># Drag</span>
-      <span class="keyword">if</span> active
-        delta = mousePosition.subtract(startPosition)
-        newPosition = objectStartPosition.add(delta)
+      selected = self.objectAtScreenPosition(startPosition)
 
-        active.position(newPosition)
-    <span class="keyword">else</span> <span class="keyword">if</span> mouseReleased.left
-      active = <span class="literal">null</span>
+  self.<span class="literal">on</span> <span class="string">"draw"</span>, (canvas) -&gt;
+    <span class="keyword">if</span> selected
+      extend bounds, selected.bounds()
 
-  <span class="function"><span class="title">ascendingZIndex</span></span> = (a, b) -&gt;
-    a.I.zIndex - b.I.zIndex
+      canvas.drawRect bounds
 
-  self.extend
-    <span class="comment"># Get the object at a given screen position</span>
-    objectAtScreenPosition: (screenPosition) -&gt;
-      <span class="comment"># TODO: Camera transforms</span>
-      self.objectsUnderPoint(screenPosition).sort(ascendingZIndex).last()
+  self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
+    <span class="keyword">if</span> justPressed.del <span class="keyword">or</span> justPressed.backspace
+      selected?.destroy()
+      selected = <span class="literal">null</span>
+
+    <span class="keyword">if</span> justPressed.<span class="keyword">return</span>
+      data = extend {}, selected?.I
+      data.x += <span class="number">20</span>
+      data.y += <span class="number">20</span>
+
+      selected = self.add data
 
   <span class="keyword">return</span> self</code></pre>
 </div>
