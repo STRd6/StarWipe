@@ -14,22 +14,27 @@ Star Wipe
       width: width
       height: height
 
-    engine.add "Puppet",
-      x: 500
-      y: 278
-      width: 100
-      height: 100
+    engine.include require "./draggin"
 
     handleImage = ({dataURL, file}) ->
-
-      # TODO: Store locally
-
       # Sync on addressable
       Locosto.store(file)
 
       # Add object to screen
       engine.add "Puppet",
+        x: width/2
+        y: height/2
+        width: 100
+        height: 100
         spriteURL: dataURL
 
     $(document).pasteImageReader handleImage
     $(document).dropImageReader handleImage
+
+    Object.keys(Locosto.names()).forEach (name) ->
+      engine.add "Puppet",
+        x: width/2
+        y: height/2
+        width: 100
+        height: 100
+        spriteURL: Locosto.url(name)

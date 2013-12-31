@@ -21,7 +21,7 @@ Store blobs locally until they've been uploaded to S3
     # If you call crossOrigin, but use the url in a normal request rather than a cross
     # origin request CloudFront will cache the wrong headers making it unusable, so don't
     # make a mistake!
-    url = (sha, crossOrigin=false) ->
+    urlForSha = (sha, crossOrigin=false) ->
       n = parseInt(sha.substring(0, 1), 16) % 4
 
       url = "http://a#{n}.pixiecdn.com/#{sha}"
@@ -31,18 +31,21 @@ Store blobs locally until they've been uploaded to S3
       else
         url
 
-    module.exports =
-      sprite: (name) ->
+    module.exports = Locosto = 
+      url: (name) ->
         if sha = names[name]
-          Sprite.load url(sha)
+          urlForSha(sha)
+
+      sprite: (name) ->
+        if url = Locosto.url(name)
+          Sprite.load url
 
       store: (file) ->
-        # TODO: S
         blobTypedArray file, (arrayBuffer) ->
           sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
           console.log sha
 
-          # TODO: Save SHA as a key
+          # Save SHA as a key
           remember(sha, sha)
 
           uploadBlobby(file)
