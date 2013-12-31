@@ -15,6 +15,7 @@ Star Wipe
       height: height
 
     engine.include require "./draggin"
+    engine.include require "./selectin"
 
     handleImage = ({dataURL, file}) ->
       # Sync on addressable

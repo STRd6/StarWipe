@@ -18,7 +18,7 @@ An engine module that allows "drag to move" for objects.
           if active
             delta = mousePosition.subtract(startPosition)
             newPosition = objectStartPosition.add(delta)
-            console.log newPosition
+
             active.position(newPosition)
         else if mouseReleased.left
           active = null
