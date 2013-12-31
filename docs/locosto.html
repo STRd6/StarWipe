@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>locosto</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="locosto">Locosto</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Store blobs locally until they&#39;ve been uploaded to S3</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">CryptoJS = require <span class="string">"./lib/crypto"</span>
+SHA1 = CryptoJS.SHA1
+
+<span class="comment"># Name -&gt; SHA1 mapping</span>
+key = <span class="string">"image_sha_names"</span>
+<span class="keyword">try</span>
+  names = JSON.parse(localStorage[key])
+<span class="keyword">catch</span>
+  names = {}
+
+<span class="function"><span class="title">remember</span></span> = (name, sha) -&gt;
+  names[name] = sha
+
+  localStorage[key] = JSON.stringify(names)
+
+<span class="comment"># If you call crossOrigin, but use the url in a normal request rather than a cross</span>
+<span class="comment"># origin request CloudFront will cache the wrong headers making it unusable, so don't</span>
+<span class="comment"># make a mistake!</span>
+<span class="function"><span class="title">url</span></span> = (sha, crossOrigin=<span class="literal">false</span>) -&gt;
+  n = parseInt(sha.substring(<span class="number">0</span>, <span class="number">1</span>), <span class="number">16</span>) % <span class="number">4</span>
+
+  url = <span class="string">"http://a<span class="subst">#{n}</span>.pixiecdn.com/<span class="subst">#{sha}</span>"</span>
+
+  <span class="keyword">if</span> crossOrigin
+    <span class="string">"<span class="subst">#{url}</span>?<span class="subst">#{location.host}</span>"</span>
+  <span class="keyword">else</span>
+    url
+
+module.exports =
+  sprite: (name) -&gt;
+    <span class="keyword">if</span> sha = names[name]
+      Sprite.load url(sha)
+
+  store: (file) -&gt;
+    <span class="comment"># TODO: S</span>
+    blobTypedArray file, (arrayBuffer) -&gt;
+      sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
+      console.log sha
+
+      <span class="comment"># TODO: Save SHA as a key</span>
+      remember(sha, sha)
+
+      uploadBlobby(file)
+
+  names: -&gt;
+    names
+
+<span class="function"><span class="title">blobTypedArray</span></span> = (blob, fn) -&gt;
+  reader = <span class="keyword">new</span> FileReader()
+
+  reader.<span class="function"><span class="title">onloadend</span></span> = -&gt;
+    result =
+    console.log(reader.result)
+    fn?(reader.result)
+
+  reader.readAsArrayBuffer(blob)
+
+<span class="function"><span class="title">uploadBlobby</span></span> = (blob) -&gt;
+  url = <span class="string">"http://addressable.herokuapp.com"</span>
+  <span class="comment"># url = "http://locohost:9393"</span>
+
+  form = <span class="keyword">new</span> FormData
+  form.append <span class="string">"data"</span>, blob
+
+  request = <span class="keyword">new</span> XMLHttpRequest()
+  request.open(<span class="string">"POST"</span>, url)
+  request.send(form)</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>

@@ -37,6 +37,8 @@
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
 Dust = require <span class="string">"dust"</span>
 
+Locosto = require <span class="string">"./locosto"</span>
+
 {width, height} = require <span class="string">"./pixie"</span>
 
 Puppet = require <span class="string">"./puppet"</span>
@@ -45,37 +47,25 @@ engine = Dust.init
   width: width
   height: height
 
-console.log Dust.GameObject
-
 engine.add <span class="string">"Puppet"</span>,
   x: <span class="number">500</span>
   y: <span class="number">278</span>
   width: <span class="number">100</span>
   height: <span class="number">100</span>
 
-$(<span class="string">"body"</span>).pasteImageReader ({dataURL, file}) -&gt;
+<span class="function"><span class="title">handleImage</span></span> = ({dataURL, file}) -&gt;
 
   <span class="comment"># TODO: Store locally</span>
-  <span class="comment"># TODO: Use filesystem API :(</span>
 
   <span class="comment"># Sync on addressable</span>
-  uploadBlobby(file)
+  Locosto.store(file)
 
   <span class="comment"># Add object to screen</span>
   engine.add <span class="string">"Puppet"</span>,
     spriteURL: dataURL
 
-<span class="function"><span class="title">uploadBlobby</span></span> = (blob) -&gt;
-  url = <span class="string">"http://addressable.herokuapp.com"</span>
-  <span class="comment"># url = "http://locohost:9393"</span>
-
-  form = <span class="keyword">new</span> FormData
-
-  form.append <span class="string">"data"</span>, blob
-
-  request = <span class="keyword">new</span> XMLHttpRequest()
-  request.open(<span class="string">"POST"</span>, url)
-  request.send(form)</code></pre>
+$(document).pasteImageReader handleImage
+$(document).dropImageReader handleImage</code></pre>
 </div>
         </li>
         
