@@ -3,7 +3,8 @@ Locosto
 
 Store blobs locally until they've been uploaded to S3
 
-    SHA1 = require "./lib/sha1"
+    CryptoJS = require "./lib/crypto"
+    SHA1 = CryptoJS.SHA1
 
     # Name -> SHA1 mapping
     key = "image_sha_names"
@@ -38,7 +39,7 @@ Store blobs locally until they've been uploaded to S3
       store: (file) ->
         # TODO: S
         blobTypedArray file, (arrayBuffer) ->
-          sha = SHA1(arrayBuffer).toString()
+          sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
           console.log sha
 
           # TODO: Save SHA as a key
