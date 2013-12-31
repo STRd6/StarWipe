@@ -38,3 +38,18 @@ Star Wipe
         width: 100
         height: 100
         spriteURL: Locosto.url(name)
+
+    engine.add "Puppet",
+      width: 200
+      height: 200
+      x: width/2
+      y: height/2
+      components: [{
+        class: "Puppet"
+        x: width/2
+        spriteURL: Locosto.url("62f8bdd7c28650a2b77393f37792fd39cd3121b9")
+      }, {
+        class: "Puppet"
+        x: -width/2
+        spriteURL: Locosto.url("62f8bdd7c28650a2b77393f37792fd39cd3121b9")
+      }]
