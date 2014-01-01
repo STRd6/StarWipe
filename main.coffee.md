@@ -16,6 +16,7 @@ Star Wipe
 
     engine.include require "./draggin"
     engine.include require "./selectin"
+    engine.include require "./room_editor"
 
     handleImage = ({dataURL, file}) ->
       # Sync on addressable

@@ -57,8 +57,6 @@ Store blobs locally until they've been uploaded to S3
       reader = new FileReader()
 
       reader.onloadend = ->
-        result =
-        console.log(reader.result)
         fn?(reader.result)
 
       reader.readAsArrayBuffer(blob)
