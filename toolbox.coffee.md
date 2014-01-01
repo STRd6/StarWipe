@@ -3,18 +3,26 @@ Toolbox
 
     Locosto = require "./locosto"
 
-    {floor} = Math
+    {floor, min} = Math
+
+    scaleToContain = (sprite, size) ->
+      min 1, size / sprite.width, size / sprite.height
 
     module.exports = (I={}, self) ->
-      names = Object.keys(Locosto.names())
-      items = names.map Locosto.sprite
+      items = Object.keys(Locosto.names()).map (name) ->
+        name: name
+        sprite: Locosto.sprite name
       selectedIndex = 0
       itemHeight = 100
       itemWidth = 100
 
       self.on "overlay", (canvas) ->
-        items.forEach (sprite, i) ->
-          sprite.draw(canvas, -sprite.width/2, i * itemHeight - sprite.height/2)
+        items.forEach ({sprite}, i) ->
+          scale = scaleToContain(sprite, itemHeight)
+          position = Point(itemWidth/2, (i + 0.5) * itemHeight)
+          canvas.withTransform Matrix.translation(position.x, position.y), ->
+            canvas.withTransform Matrix.scale(scale), ->
+              sprite.draw(canvas, -sprite.width/2, -sprite.height/2)
 
         if selectedIndex < items.length
           canvas.drawRect
@@ -35,9 +43,12 @@ Toolbox
           position = mousePosition.copy()
 
           if selectedIndex < items.length
-            url = Locosto.url(names[selectedIndex])
+            url = Locosto.url(items[selectedIndex].name)
             self.add
               class: "Puppet"
               spriteURL: url
               x: position.x
               y: position.y
+
+        if justPressed.del
+          items.remove(items[selectedIndex])

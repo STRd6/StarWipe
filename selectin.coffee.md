@@ -20,7 +20,7 @@ Selectin
           canvas.drawRect bounds
 
       self.on "update", ->
-        if justPressed.del or justPressed.backspace
+        if justPressed.backspace
           selected?.destroy()
           selected = null
 
