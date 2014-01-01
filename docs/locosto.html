@@ -89,8 +89,6 @@ module.exports = Locosto =
   reader = <span class="keyword">new</span> FileReader()
 
   reader.<span class="function"><span class="title">onloadend</span></span> = -&gt;
-    result =
-    console.log(reader.result)
     fn?(reader.result)
 
   reader.readAsArrayBuffer(blob)
