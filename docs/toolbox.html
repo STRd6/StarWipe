@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>puppet</title>
+  <title>toolbox</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="puppet">Puppet</h1>
+              <h1 id="toolbox">Toolbox</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,36 +34,46 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">GameObject = require(<span class="string">"dust"</span>).GameObject
-Compositions = require(<span class="string">"./lib/compositions"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">Locosto = require <span class="string">"./locosto"</span>
 
-<span class="comment"># TODO: Expose this more gracefully</span>
-{defaults} = require <span class="string">"dust/util"</span>
+{floor} = Math
 
-<span class="function"><span class="title">Puppet</span></span> = (I={}, self) -&gt;
-  defaults I,
-    components: []
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  names = Object.keys(Locosto.names())
+  items = names.map Locosto.sprite
+  selectedIndex = <span class="number">0</span>
+  itemHeight = <span class="number">100</span>
+  itemWidth = <span class="number">100</span>
 
-  self = GameObject(I)
+  self.<span class="literal">on</span> <span class="string">"overlay"</span>, (canvas) -&gt;
+    items.forEach (sprite, i) -&gt;
+      sprite.draw(canvas, -sprite.width<span class="regexp">/2, i * itemHeight - sprite.height/</span><span class="number">2</span>)
 
-  self.attrModels <span class="string">"components"</span>, Puppet
+    <span class="keyword">if</span> selectedIndex &lt; items.length
+      canvas.drawRect
+        x: <span class="number">0</span>
+        y: selectedIndex * itemHeight
+        width: <span class="number">100</span>
+        height: <span class="number">100</span>
+        color: <span class="string">"rgba(0, 255, 255, 0.25)"</span>
 
-  self.<span class="literal">on</span> <span class="string">"draw"</span>, (canvas) -&gt;
-    self.components().invoke <span class="string">"draw"</span>, canvas
-
-  <span class="comment"># TODO: Extract to a module "autosize to sprite"</span>
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
-    <span class="keyword">if</span> sprite = self.sprite()
-      I.width = sprite.width
-      I.height = sprite.height
+    <span class="keyword">if</span> mousePressed.left
+      position = mousePosition.copy()
 
-  <span class="keyword">return</span> self
+      <span class="keyword">if</span> position.x &lt; itemWidth
+        selectedIndex = floor position.y / itemHeight
 
-GameObject.registry.Puppet = Puppet
+    <span class="keyword">if</span> mousePressed.right
+      position = mousePosition.copy()
 
-GameObject.defaultModules.push Compositions
-
-module.exports = Puppet</code></pre>
+      <span class="keyword">if</span> selectedIndex &lt; items.length
+        url = Locosto.url(names[selectedIndex])
+        self.add
+          class: <span class="string">"Puppet"</span>
+          spriteURL: url
+          x: position.x
+          y: position.y</code></pre>
 </div>
         </li>
         

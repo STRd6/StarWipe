@@ -42,7 +42,14 @@ global.require = require
 <span class="comment"># TODO: HAX</span>
 {extend} = require <span class="string">"dust/util"</span>
 extend Object,
-  extend: extend</code></pre>
+  extend: extend
+
+<span class="comment"># Prevent browser contextmenu from popping up in games.</span>
+document.<span class="function"><span class="title">oncontextmenu</span></span> = -&gt; <span class="literal">false</span>
+
+<span class="comment"># Prevent default keypresses except for input fields</span>
+$(document).bind <span class="string">"keydown"</span>, (event) -&gt;
+  event.preventDefault() <span class="keyword">unless</span> $(event.target).<span class="keyword">is</span> <span class="string">"input"</span></code></pre>
 </div>
         </li>
         
