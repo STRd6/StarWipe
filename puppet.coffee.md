@@ -18,6 +18,12 @@ Puppet
       self.on "draw", (canvas) ->
         self.components().invoke "draw", canvas
 
+      # TODO: Extract to a module "autosize to sprite"
+      self.on "update", ->
+        if sprite = self.sprite()
+          I.width = sprite.width
+          I.height = sprite.height
+
       return self
 
     GameObject.registry.Puppet = Puppet

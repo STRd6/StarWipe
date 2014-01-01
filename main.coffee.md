@@ -17,6 +17,7 @@ Star Wipe
     engine.include require "./draggin"
     engine.include require "./selectin"
     engine.include require "./room_editor"
+    engine.include require "./toolbox"
 
     handleImage = ({dataURL, file}) ->
       # Sync on addressable
@@ -33,14 +34,6 @@ Star Wipe
     $(document).pasteImageReader handleImage
     $(document).dropImageReader handleImage
 
-    Object.keys(Locosto.names()).forEach (name) ->
-      engine.add "Puppet",
-        x: width/2
-        y: height/2
-        width: 100
-        height: 100
-        spriteURL: Locosto.url(name)
-
     engine.add "Puppet",
       width: 200
       height: 200
@@ -56,3 +49,5 @@ Star Wipe
         x: -width/2
         spriteURL: Locosto.url("62f8bdd7c28650a2b77393f37792fd39cd3121b9")
       }]
+
+    window.engine = engine

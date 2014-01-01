@@ -18,7 +18,7 @@ Switch between rooms and edit them.
         canvas.drawText
           color: "white"
           font: "24px bold consolas, monospace"
-          x: 50
+          x: 850
           y: 50
           text: "Room: ##{choice}"
 
