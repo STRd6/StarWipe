@@ -53,7 +53,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       canvas.drawRect bounds
 
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
-    <span class="keyword">if</span> justPressed.del <span class="keyword">or</span> justPressed.backspace
+    <span class="keyword">if</span> justPressed.backspace
       selected?.destroy()
       selected = <span class="literal">null</span>
 

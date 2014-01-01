@@ -36,18 +36,26 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Locosto = require <span class="string">"./locosto"</span>
 
-{floor} = Math
+{floor, min} = Math
+
+<span class="function"><span class="title">scaleToContain</span></span> = (sprite, size) -&gt;
+  min <span class="number">1</span>, size / sprite.width, size / sprite.height
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
-  names = Object.keys(Locosto.names())
-  items = names.map Locosto.sprite
+  items = Object.keys(Locosto.names()).map (name) -&gt;
+    name: name
+    sprite: Locosto.sprite name
   selectedIndex = <span class="number">0</span>
   itemHeight = <span class="number">100</span>
   itemWidth = <span class="number">100</span>
 
   self.<span class="literal">on</span> <span class="string">"overlay"</span>, (canvas) -&gt;
-    items.forEach (sprite, i) -&gt;
-      sprite.draw(canvas, -sprite.width<span class="regexp">/2, i * itemHeight - sprite.height/</span><span class="number">2</span>)
+    items.forEach ({sprite}, i) -&gt;
+      scale = scaleToContain(sprite, itemHeight)
+      position = Point(itemWidth/<span class="number">2</span>, (i + <span class="number">0.5</span>) * itemHeight)
+      canvas.withTransform Matrix.translation(position.x, position.y), -&gt;
+        canvas.withTransform Matrix.scale(scale), -&gt;
+          sprite.draw(canvas, -sprite.width<span class="regexp">/2, -sprite.height/</span><span class="number">2</span>)
 
     <span class="keyword">if</span> selectedIndex &lt; items.length
       canvas.drawRect
@@ -68,12 +76,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       position = mousePosition.copy()
 
       <span class="keyword">if</span> selectedIndex &lt; items.length
-        url = Locosto.url(names[selectedIndex])
+        url = Locosto.url(items[selectedIndex].name)
         self.add
           class: <span class="string">"Puppet"</span>
           spriteURL: url
           x: position.x
-          y: position.y</code></pre>
+          y: position.y
+
+    <span class="keyword">if</span> justPressed.del
+      items.remove(items[selectedIndex])</code></pre>
 </div>
         </li>
         
