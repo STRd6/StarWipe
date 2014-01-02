@@ -52,3 +52,9 @@ Toolbox
 
         if justPressed.del
           items.remove(items[selectedIndex])
+
+      self.extend
+        addItem: (sha) ->
+          items.push
+            name: sha
+            sprite: Locosto.sprite sha

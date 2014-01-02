@@ -40,15 +40,15 @@ Store blobs locally until they've been uploaded to S3
         if url = Locosto.url(name)
           Sprite.load url
 
-      store: (file) ->
+      store: (file, completed) ->
         blobTypedArray file, (arrayBuffer) ->
           sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
-          console.log sha
 
           # Save SHA as a key
           remember(sha, sha)
 
-          uploadBlobby(file)
+          uploadBlobby file, ->
+            completed?(sha)
 
       names: ->
         names
@@ -61,7 +61,7 @@ Store blobs locally until they've been uploaded to S3
 
       reader.readAsArrayBuffer(blob)
 
-    uploadBlobby = (blob) ->
+    uploadBlobby = (blob, complete) ->
       url = "http://addressable.herokuapp.com"
       # url = "http://locohost:9393"
 
@@ -69,5 +69,9 @@ Store blobs locally until they've been uploaded to S3
       form.append "data", blob
 
       request = new XMLHttpRequest()
+
+      request.onload = ->
+        complete?()
+
       request.open("POST", url)
       request.send(form)
