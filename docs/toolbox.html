@@ -93,6 +93,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.extend
     addItem: (sha) -&gt;
+      Locosto.remember sha, sha
+
       items.push
         name: sha
         sprite: Locosto.sprite sha</code></pre>

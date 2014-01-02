@@ -60,7 +60,7 @@
     "locosto.coffee.md": {
       "path": "locosto.coffee.md",
       "mode": "100644",
-      "content": "Locosto\n=======\n\nStore blobs locally and uploadeds them to S3\n\n    CryptoJS = require \"./lib/crypto\"\n    SHA1 = CryptoJS.SHA1\n\n    # Name -> SHA1 mapping\n    key = \"image_sha_names\"\n    try\n      names = JSON.parse(localStorage[key])\n    catch\n      names = {}\n\n    remember = (name, sha) ->\n      names[name] = sha\n      persist()\n\n    forget = (name) ->\n      delete names[name]\n      persist()\n\n    persist = ->\n      localStorage[key] = JSON.stringify(names)\n\n    # If you call crossOrigin, but use the url in a normal request rather than a cross\n    # origin request CloudFront will cache the wrong headers making it unusable, so don't\n    # make a mistake!\n    urlForSha = (sha, crossOrigin=false) ->\n      n = parseInt(sha.substring(0, 1), 16) % 4\n\n      url = \"http://a#{n}.pixiecdn.com/#{sha}\"\n\n      if crossOrigin\n        \"#{url}?#{location.host}\"\n      else\n        url\n\n    module.exports = Locosto = \n      url: (name) ->\n        if sha = names[name]\n          urlForSha(sha)\n\n      sprite: (name) ->\n        if url = Locosto.url(name)\n          Sprite.load url\n\n      store: (file, completed) ->\n        blobTypedArray file, (arrayBuffer) ->\n          sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()\n\n          uploadBlobby file, ->\n            completed?(sha)\n\n      forget: forget\n\n      names: ->\n        names\n\n    blobTypedArray = (blob, fn) ->\n      reader = new FileReader()\n\n      reader.onloadend = ->\n        fn?(reader.result)\n\n      reader.readAsArrayBuffer(blob)\n\n    uploadBlobby = (blob, complete) ->\n      url = \"http://addressable.herokuapp.com\"\n      # url = \"http://locohost:9393\"\n\n      form = new FormData\n      form.append \"data\", blob\n\n      request = new XMLHttpRequest()\n\n      request.onload = ->\n        complete?()\n\n      request.open(\"POST\", url)\n      request.send(form)\n",
+      "content": "Locosto\n=======\n\nStore blobs locally and uploadeds them to S3\n\n    CryptoJS = require \"./lib/crypto\"\n    SHA1 = CryptoJS.SHA1\n    Storage = require \"storage\"\n\n    storage = Storage.new \"StarWipe\"\n\n    # Name -> SHA1 mapping\n    key = \"image_sha_names\"\n    names = storage.get(key) or {}\n\n    remember = (name, sha) ->\n      names[name] = sha\n      persist()\n\n    forget = (name) ->\n      delete names[name]\n      persist()\n\n    persist = ->\n      storage.set key, names\n\n    # If you call crossOrigin, but use the url in a normal request rather than a cross\n    # origin request CloudFront will cache the wrong headers making it unusable, so don't\n    # make a mistake!\n    urlForSha = (sha, crossOrigin=false) ->\n      n = parseInt(sha.substring(0, 1), 16) % 4\n\n      url = \"http://a#{n}.pixiecdn.com/#{sha}\"\n\n      if crossOrigin\n        \"#{url}?#{location.host}\"\n      else\n        url\n\n    module.exports = Locosto =\n      url: (name) ->\n        if sha = names[name]\n          urlForSha(sha)\n\n      sprite: (name) ->\n        if url = Locosto.url(name)\n          Sprite.load url\n\n      store: (file, completed) ->\n        blobTypedArray file, (arrayBuffer) ->\n          sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()\n\n          uploadBlobby file, ->\n            completed?(sha)\n\n      forget: forget\n      \n      remember: remember\n\n      names: ->\n        names\n\n    blobTypedArray = (blob, fn) ->\n      reader = new FileReader()\n\n      reader.onloadend = ->\n        fn?(reader.result)\n\n      reader.readAsArrayBuffer(blob)\n\n    uploadBlobby = (blob, complete) ->\n      url = \"http://addressable.herokuapp.com\"\n      # url = \"http://locohost:9393\"\n\n      form = new FormData\n      form.append \"data\", blob\n\n      request = new XMLHttpRequest()\n\n      request.onload = ->\n        complete?()\n\n      request.open(\"POST\", url)\n      request.send(form)\n",
       "type": "blob"
     },
     "main.coffee.md": {
@@ -72,7 +72,7 @@
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.10.1.min.js\"\n]\ndependencies:\n  dust: \"distri/dust:v0.1.5\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.10.1.min.js\"\n]\ndependencies:\n  dust: \"distri/dust:v0.1.5\"\n  storage: \"distri/storage:v0.1.0\"\n",
       "type": "blob"
     },
     "puppet.coffee.md": {
@@ -84,7 +84,7 @@
     "room_editor.coffee.md": {
       "path": "room_editor.coffee.md",
       "mode": "100644",
-      "content": "Room Editor\n===========\n\nSwitch between rooms and edit them.\n\n    module.exports = (I={}, self) ->\n      choice = 0\n\n      rooms = []\n\n      changeRoom = (newChoice) ->\n        if newChoice != choice\n          rooms[choice] = self.saveState()\n          choice = newChoice\n          self.loadState(rooms[choice] or [])\n\n      self.on \"overlay\", (canvas) ->\n        canvas.drawText\n          color: \"white\"\n          font: \"24px bold consolas, monospace\"\n          x: 850\n          y: 50\n          text: \"Room: ##{choice}\"\n\n      self.on \"update\", ->\n        newChoice = null\n\n        [0..9].forEach (key) ->  \n          if justPressed[key]\n            newChoice = key\n\n        if newChoice?\n          changeRoom newChoice\n",
+      "content": "Room Editor\n===========\n\nSwitch between rooms and edit them.\n\n    # Name -> SHA1 mapping\n    key = \"image_sha_names\"\n    try\n      names = JSON.parse(localStorage[key])\n    catch\n      names = {}\n\n    remember = (name, sha) ->\n      names[name] = sha\n      persist()\n\n    forget = (name) ->\n      delete names[name]\n      persist()\n\n    persist = ->\n      localStorage[key] = JSON.stringify(names)\n\n    module.exports = (I={}, self) ->\n      choice = 0\n\n      rooms = []\n\n      changeRoom = (newChoice) ->\n        if newChoice != choice\n          rooms[choice] = self.saveState()\n          choice = newChoice\n          self.loadState(rooms[choice] or [])\n\n      self.on \"overlay\", (canvas) ->\n        canvas.drawText\n          color: \"white\"\n          font: \"24px bold consolas, monospace\"\n          x: 850\n          y: 50\n          text: \"Room: ##{choice}\"\n\n      self.on \"update\", ->\n        newChoice = null\n\n        [0..9].forEach (key) ->\n          if justPressed[key]\n            newChoice = key\n\n        if newChoice?\n          changeRoom newChoice\n",
       "type": "blob"
     },
     "selectin.coffee.md": {
@@ -108,7 +108,7 @@
     "toolbox.coffee.md": {
       "path": "toolbox.coffee.md",
       "mode": "100644",
-      "content": "Toolbox\n=======\n\n    Locosto = require \"./locosto\"\n\n    {floor, min} = Math\n\n    # TODO: Item sets or scrollable items?\n    # Page up/page down\n\n    scaleToContain = (sprite, size) ->\n      min 1, size / sprite.width, size / sprite.height\n\n    module.exports = (I={}, self) ->\n      items = Object.keys(Locosto.names()).map (name) ->\n        name: name\n        sprite: Locosto.sprite name\n      selectedIndex = 0\n      itemHeight = 100\n      itemWidth = 100\n\n      self.on \"overlay\", (canvas) ->\n        items.forEach ({sprite}, i) ->\n          scale = scaleToContain(sprite, itemHeight)\n          position = Point(itemWidth/2, (i + 0.5) * itemHeight)\n          canvas.withTransform Matrix.translation(position.x, position.y), ->\n            canvas.withTransform Matrix.scale(scale), ->\n              sprite.draw(canvas, -sprite.width/2, -sprite.height/2)\n\n        if selectedIndex < items.length\n          canvas.drawRect\n            x: 0\n            y: selectedIndex * itemHeight\n            width: 100\n            height: 100\n            color: \"rgba(0, 255, 255, 0.25)\"\n\n      self.on \"update\", ->\n        if mousePressed.left\n          position = mousePosition.copy()\n\n          if position.x < itemWidth\n            selectedIndex = floor position.y / itemHeight\n\n        if mousePressed.right\n          position = mousePosition.copy()\n\n          if selectedIndex < items.length\n            url = Locosto.url(items[selectedIndex].name)\n            self.add\n              class: \"Puppet\"\n              spriteURL: url\n              x: position.x\n              y: position.y\n\n        if justPressed.del\n          if itemToRemove = items[selectedIndex]\n            items.remove(itemToRemove)\n            Locosto.forget itemToRemove.name\n\n      self.extend\n        addItem: (sha) ->\n          items.push\n            name: sha\n            sprite: Locosto.sprite sha\n",
+      "content": "Toolbox\n=======\n\n    Locosto = require \"./locosto\"\n\n    {floor, min} = Math\n\n    # TODO: Item sets or scrollable items?\n    # Page up/page down\n\n    scaleToContain = (sprite, size) ->\n      min 1, size / sprite.width, size / sprite.height\n\n    module.exports = (I={}, self) ->\n      items = Object.keys(Locosto.names()).map (name) ->\n        name: name\n        sprite: Locosto.sprite name\n      selectedIndex = 0\n      itemHeight = 100\n      itemWidth = 100\n\n      self.on \"overlay\", (canvas) ->\n        items.forEach ({sprite}, i) ->\n          scale = scaleToContain(sprite, itemHeight)\n          position = Point(itemWidth/2, (i + 0.5) * itemHeight)\n          canvas.withTransform Matrix.translation(position.x, position.y), ->\n            canvas.withTransform Matrix.scale(scale), ->\n              sprite.draw(canvas, -sprite.width/2, -sprite.height/2)\n\n        if selectedIndex < items.length\n          canvas.drawRect\n            x: 0\n            y: selectedIndex * itemHeight\n            width: 100\n            height: 100\n            color: \"rgba(0, 255, 255, 0.25)\"\n\n      self.on \"update\", ->\n        if mousePressed.left\n          position = mousePosition.copy()\n\n          if position.x < itemWidth\n            selectedIndex = floor position.y / itemHeight\n\n        if mousePressed.right\n          position = mousePosition.copy()\n\n          if selectedIndex < items.length\n            url = Locosto.url(items[selectedIndex].name)\n            self.add\n              class: \"Puppet\"\n              spriteURL: url\n              x: position.x\n              y: position.y\n\n        if justPressed.del\n          if itemToRemove = items[selectedIndex]\n            items.remove(itemToRemove)\n            Locosto.forget itemToRemove.name\n\n      self.extend\n        addItem: (sha) ->\n          Locosto.remember sha, sha\n\n          items.push\n            name: sha\n            sprite: Locosto.sprite sha\n",
       "type": "blob"
     }
   },
@@ -145,7 +145,7 @@
     },
     "locosto": {
       "path": "locosto",
-      "content": "(function() {\n  var CryptoJS, Locosto, SHA1, blobTypedArray, forget, key, names, persist, remember, uploadBlobby, urlForSha;\n\n  CryptoJS = require(\"./lib/crypto\");\n\n  SHA1 = CryptoJS.SHA1;\n\n  key = \"image_sha_names\";\n\n  try {\n    names = JSON.parse(localStorage[key]);\n  } catch (_error) {\n    names = {};\n  }\n\n  remember = function(name, sha) {\n    names[name] = sha;\n    return persist();\n  };\n\n  forget = function(name) {\n    delete names[name];\n    return persist();\n  };\n\n  persist = function() {\n    return localStorage[key] = JSON.stringify(names);\n  };\n\n  urlForSha = function(sha, crossOrigin) {\n    var n, url;\n    if (crossOrigin == null) {\n      crossOrigin = false;\n    }\n    n = parseInt(sha.substring(0, 1), 16) % 4;\n    url = \"http://a\" + n + \".pixiecdn.com/\" + sha;\n    if (crossOrigin) {\n      return \"\" + url + \"?\" + location.host;\n    } else {\n      return url;\n    }\n  };\n\n  module.exports = Locosto = {\n    url: function(name) {\n      var sha;\n      if (sha = names[name]) {\n        return urlForSha(sha);\n      }\n    },\n    sprite: function(name) {\n      var url;\n      if (url = Locosto.url(name)) {\n        return Sprite.load(url);\n      }\n    },\n    store: function(file, completed) {\n      return blobTypedArray(file, function(arrayBuffer) {\n        var sha;\n        sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString();\n        return uploadBlobby(file, function() {\n          return typeof completed === \"function\" ? completed(sha) : void 0;\n        });\n      });\n    },\n    forget: forget,\n    names: function() {\n      return names;\n    }\n  };\n\n  blobTypedArray = function(blob, fn) {\n    var reader;\n    reader = new FileReader();\n    reader.onloadend = function() {\n      return typeof fn === \"function\" ? fn(reader.result) : void 0;\n    };\n    return reader.readAsArrayBuffer(blob);\n  };\n\n  uploadBlobby = function(blob, complete) {\n    var form, request, url;\n    url = \"http://addressable.herokuapp.com\";\n    form = new FormData;\n    form.append(\"data\", blob);\n    request = new XMLHttpRequest();\n    request.onload = function() {\n      return typeof complete === \"function\" ? complete() : void 0;\n    };\n    request.open(\"POST\", url);\n    return request.send(form);\n  };\n\n}).call(this);\n\n//# sourceURL=locosto.coffee",
+      "content": "(function() {\n  var CryptoJS, Locosto, SHA1, Storage, blobTypedArray, forget, key, names, persist, remember, storage, uploadBlobby, urlForSha;\n\n  CryptoJS = require(\"./lib/crypto\");\n\n  SHA1 = CryptoJS.SHA1;\n\n  Storage = require(\"storage\");\n\n  storage = Storage[\"new\"](\"StarWipe\");\n\n  key = \"image_sha_names\";\n\n  names = storage.get(key) || {};\n\n  remember = function(name, sha) {\n    names[name] = sha;\n    return persist();\n  };\n\n  forget = function(name) {\n    delete names[name];\n    return persist();\n  };\n\n  persist = function() {\n    return storage.set(key, names);\n  };\n\n  urlForSha = function(sha, crossOrigin) {\n    var n, url;\n    if (crossOrigin == null) {\n      crossOrigin = false;\n    }\n    n = parseInt(sha.substring(0, 1), 16) % 4;\n    url = \"http://a\" + n + \".pixiecdn.com/\" + sha;\n    if (crossOrigin) {\n      return \"\" + url + \"?\" + location.host;\n    } else {\n      return url;\n    }\n  };\n\n  module.exports = Locosto = {\n    url: function(name) {\n      var sha;\n      if (sha = names[name]) {\n        return urlForSha(sha);\n      }\n    },\n    sprite: function(name) {\n      var url;\n      if (url = Locosto.url(name)) {\n        return Sprite.load(url);\n      }\n    },\n    store: function(file, completed) {\n      return blobTypedArray(file, function(arrayBuffer) {\n        var sha;\n        sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString();\n        return uploadBlobby(file, function() {\n          return typeof completed === \"function\" ? completed(sha) : void 0;\n        });\n      });\n    },\n    forget: forget,\n    remember: remember,\n    names: function() {\n      return names;\n    }\n  };\n\n  blobTypedArray = function(blob, fn) {\n    var reader;\n    reader = new FileReader();\n    reader.onloadend = function() {\n      return typeof fn === \"function\" ? fn(reader.result) : void 0;\n    };\n    return reader.readAsArrayBuffer(blob);\n  };\n\n  uploadBlobby = function(blob, complete) {\n    var form, request, url;\n    url = \"http://addressable.herokuapp.com\";\n    form = new FormData;\n    form.append(\"data\", blob);\n    request = new XMLHttpRequest();\n    request.onload = function() {\n      return typeof complete === \"function\" ? complete() : void 0;\n    };\n    request.open(\"POST\", url);\n    return request.send(form);\n  };\n\n}).call(this);\n\n//# sourceURL=locosto.coffee",
       "type": "blob"
     },
     "main": {
@@ -155,7 +155,7 @@
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.10.1.min.js\"],\"dependencies\":{\"dust\":\"distri/dust:v0.1.5\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.10.1.min.js\"],\"dependencies\":{\"dust\":\"distri/dust:v0.1.5\",\"storage\":\"distri/storage:v0.1.0\"}};",
       "type": "blob"
     },
     "puppet": {
@@ -165,7 +165,7 @@
     },
     "room_editor": {
       "path": "room_editor",
-      "content": "(function() {\n  module.exports = function(I, self) {\n    var changeRoom, choice, rooms;\n    if (I == null) {\n      I = {};\n    }\n    choice = 0;\n    rooms = [];\n    changeRoom = function(newChoice) {\n      if (newChoice !== choice) {\n        rooms[choice] = self.saveState();\n        choice = newChoice;\n        return self.loadState(rooms[choice] || []);\n      }\n    };\n    self.on(\"overlay\", function(canvas) {\n      return canvas.drawText({\n        color: \"white\",\n        font: \"24px bold consolas, monospace\",\n        x: 850,\n        y: 50,\n        text: \"Room: #\" + choice\n      });\n    });\n    return self.on(\"update\", function() {\n      var newChoice;\n      newChoice = null;\n      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function(key) {\n        if (justPressed[key]) {\n          return newChoice = key;\n        }\n      });\n      if (newChoice != null) {\n        return changeRoom(newChoice);\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=room_editor.coffee",
+      "content": "(function() {\n  var forget, key, names, persist, remember;\n\n  key = \"image_sha_names\";\n\n  try {\n    names = JSON.parse(localStorage[key]);\n  } catch (_error) {\n    names = {};\n  }\n\n  remember = function(name, sha) {\n    names[name] = sha;\n    return persist();\n  };\n\n  forget = function(name) {\n    delete names[name];\n    return persist();\n  };\n\n  persist = function() {\n    return localStorage[key] = JSON.stringify(names);\n  };\n\n  module.exports = function(I, self) {\n    var changeRoom, choice, rooms;\n    if (I == null) {\n      I = {};\n    }\n    choice = 0;\n    rooms = [];\n    changeRoom = function(newChoice) {\n      if (newChoice !== choice) {\n        rooms[choice] = self.saveState();\n        choice = newChoice;\n        return self.loadState(rooms[choice] || []);\n      }\n    };\n    self.on(\"overlay\", function(canvas) {\n      return canvas.drawText({\n        color: \"white\",\n        font: \"24px bold consolas, monospace\",\n        x: 850,\n        y: 50,\n        text: \"Room: #\" + choice\n      });\n    });\n    return self.on(\"update\", function() {\n      var newChoice;\n      newChoice = null;\n      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function(key) {\n        if (justPressed[key]) {\n          return newChoice = key;\n        }\n      });\n      if (newChoice != null) {\n        return changeRoom(newChoice);\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=room_editor.coffee",
       "type": "blob"
     },
     "selectin": {
@@ -185,7 +185,7 @@
     },
     "toolbox": {
       "path": "toolbox",
-      "content": "(function() {\n  var Locosto, floor, min, scaleToContain;\n\n  Locosto = require(\"./locosto\");\n\n  floor = Math.floor, min = Math.min;\n\n  scaleToContain = function(sprite, size) {\n    return min(1, size / sprite.width, size / sprite.height);\n  };\n\n  module.exports = function(I, self) {\n    var itemHeight, itemWidth, items, selectedIndex;\n    if (I == null) {\n      I = {};\n    }\n    items = Object.keys(Locosto.names()).map(function(name) {\n      return {\n        name: name,\n        sprite: Locosto.sprite(name)\n      };\n    });\n    selectedIndex = 0;\n    itemHeight = 100;\n    itemWidth = 100;\n    self.on(\"overlay\", function(canvas) {\n      items.forEach(function(_arg, i) {\n        var position, scale, sprite;\n        sprite = _arg.sprite;\n        scale = scaleToContain(sprite, itemHeight);\n        position = Point(itemWidth / 2, (i + 0.5) * itemHeight);\n        return canvas.withTransform(Matrix.translation(position.x, position.y), function() {\n          return canvas.withTransform(Matrix.scale(scale), function() {\n            return sprite.draw(canvas, -sprite.width / 2, -sprite.height / 2);\n          });\n        });\n      });\n      if (selectedIndex < items.length) {\n        return canvas.drawRect({\n          x: 0,\n          y: selectedIndex * itemHeight,\n          width: 100,\n          height: 100,\n          color: \"rgba(0, 255, 255, 0.25)\"\n        });\n      }\n    });\n    self.on(\"update\", function() {\n      var itemToRemove, position, url;\n      if (mousePressed.left) {\n        position = mousePosition.copy();\n        if (position.x < itemWidth) {\n          selectedIndex = floor(position.y / itemHeight);\n        }\n      }\n      if (mousePressed.right) {\n        position = mousePosition.copy();\n        if (selectedIndex < items.length) {\n          url = Locosto.url(items[selectedIndex].name);\n          self.add({\n            \"class\": \"Puppet\",\n            spriteURL: url,\n            x: position.x,\n            y: position.y\n          });\n        }\n      }\n      if (justPressed.del) {\n        if (itemToRemove = items[selectedIndex]) {\n          items.remove(itemToRemove);\n          return Locosto.forget(itemToRemove.name);\n        }\n      }\n    });\n    return self.extend({\n      addItem: function(sha) {\n        return items.push({\n          name: sha,\n          sprite: Locosto.sprite(sha)\n        });\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=toolbox.coffee",
+      "content": "(function() {\n  var Locosto, floor, min, scaleToContain;\n\n  Locosto = require(\"./locosto\");\n\n  floor = Math.floor, min = Math.min;\n\n  scaleToContain = function(sprite, size) {\n    return min(1, size / sprite.width, size / sprite.height);\n  };\n\n  module.exports = function(I, self) {\n    var itemHeight, itemWidth, items, selectedIndex;\n    if (I == null) {\n      I = {};\n    }\n    items = Object.keys(Locosto.names()).map(function(name) {\n      return {\n        name: name,\n        sprite: Locosto.sprite(name)\n      };\n    });\n    selectedIndex = 0;\n    itemHeight = 100;\n    itemWidth = 100;\n    self.on(\"overlay\", function(canvas) {\n      items.forEach(function(_arg, i) {\n        var position, scale, sprite;\n        sprite = _arg.sprite;\n        scale = scaleToContain(sprite, itemHeight);\n        position = Point(itemWidth / 2, (i + 0.5) * itemHeight);\n        return canvas.withTransform(Matrix.translation(position.x, position.y), function() {\n          return canvas.withTransform(Matrix.scale(scale), function() {\n            return sprite.draw(canvas, -sprite.width / 2, -sprite.height / 2);\n          });\n        });\n      });\n      if (selectedIndex < items.length) {\n        return canvas.drawRect({\n          x: 0,\n          y: selectedIndex * itemHeight,\n          width: 100,\n          height: 100,\n          color: \"rgba(0, 255, 255, 0.25)\"\n        });\n      }\n    });\n    self.on(\"update\", function() {\n      var itemToRemove, position, url;\n      if (mousePressed.left) {\n        position = mousePosition.copy();\n        if (position.x < itemWidth) {\n          selectedIndex = floor(position.y / itemHeight);\n        }\n      }\n      if (mousePressed.right) {\n        position = mousePosition.copy();\n        if (selectedIndex < items.length) {\n          url = Locosto.url(items[selectedIndex].name);\n          self.add({\n            \"class\": \"Puppet\",\n            spriteURL: url,\n            x: position.x,\n            y: position.y\n          });\n        }\n      }\n      if (justPressed.del) {\n        if (itemToRemove = items[selectedIndex]) {\n          items.remove(itemToRemove);\n          return Locosto.forget(itemToRemove.name);\n        }\n      }\n    });\n    return self.extend({\n      addItem: function(sha) {\n        Locosto.remember(sha, sha);\n        return items.push({\n          name: sha,\n          sprite: Locosto.sprite(sha)\n        });\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=toolbox.coffee",
       "type": "blob"
     }
   },
@@ -3959,6 +3959,178 @@
           }
         }
       }
+    },
+    "storage": {
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2014 distri\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "storage\n=======\n\nStore data in local storage\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Storage\n=======\n\nA wrapper on the Local Storage API \n\nStore an object in local storage.\n\nMethods\n-------\n\n`set`\n\nYou can store strings\n\n>     Storage.set('name', 'Matt')\n\nNumbers\n\n>     Storage.set('age', 26)\n\nEven objects\n\n>     Storage.set('person', {name: 'Matt', age: 26})\n\n    store = (key, value) ->\n      localStorage[key] = JSON.stringify(value)\n\n      return value\n\n`get` retrieves an object from local storage.\n\n>     Storage.get('name')\n>     # => 'Matt'\n\n>     Storage.get('age')\n>     # => 26\n  \n>     Storage.get('person')\n>     # => { age: 26, name: 'Matt' }\n  \n    retrieve = (key) ->\n      value = localStorage[key]\n  \n      if value?\n        JSON.parse(value)\n\n    module.exports =\n      get: retrieve\n      set: store\n      put: store\n\nAccess an instance of Storage with a specified prefix.\n\nReturns an interface to local storage with the given prefix applied.\n\n      new: (prefix) ->\n        prefix ||= \"\"\n  \n        get: (key) ->\n          retrieve(\"#{prefix}_#{key}\")\n        set: (key, value) ->\n          store(\"#{prefix}_#{key}\", value)\n        put: (key, value) ->\n          store(\"#{prefix}_#{key}\", value)\n",
+          "type": "blob"
+        },
+        "test/storage.coffee": {
+          "path": "test/storage.coffee",
+          "mode": "100644",
+          "content": "Storage = require \"../main\"\n\nequal = assert.equal\n\ndescribe \"Storage\", ->\n  \n  it \"should set and get\", ->\n    object =\n      key: \"test\"\n      cool: true\n      num: 17\n      sub:\n        a: true\n        b: 14\n        c: \"str\"\n  \n    Storage.set(\"__TEST\", object)\n    ret = Storage.get(\"__TEST\")\n    equal ret.key, object.key\n    equal ret.cool, object.cool\n    equal ret.num, object.num\n    equal ret.sub.a, object.sub.a\n    equal ret.sub.b, object.sub.b\n    equal ret.sub.c, object.sub.c\n\n    Storage.set(\"__TEST\", 0)\n    ret = Storage.get(\"__TEST\")\n    equal ret, 0\n\n    Storage.set(\"__TEST\", false)\n    ret = Storage.get(\"__TEST\")\n    equal ret, false\n\n    Storage.set(\"__TEST\", \"\")\n    ret = Storage.get(\"__TEST\")\n    equal ret, \"\"\n\n  it \"should have Storage.new\", ->\n    local = Storage.new(\"TEST\")\n    key = \"a test value\"\n\n    local.set(key, true)\n    equal local.get(key), true\n\n    equal Storage.get(key), null\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.0\"\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var retrieve, store;\n\n  store = function(key, value) {\n    localStorage[key] = JSON.stringify(value);\n    return value;\n  };\n\n  retrieve = function(key) {\n    var value;\n    value = localStorage[key];\n    if (value != null) {\n      return JSON.parse(value);\n    }\n  };\n\n  module.exports = {\n    get: retrieve,\n    set: store,\n    put: store,\n    \"new\": function(prefix) {\n      prefix || (prefix = \"\");\n      return {\n        get: function(key) {\n          return retrieve(\"\" + prefix + \"_\" + key);\n        },\n        set: function(key, value) {\n          return store(\"\" + prefix + \"_\" + key, value);\n        },\n        put: function(key, value) {\n          return store(\"\" + prefix + \"_\" + key, value);\n        }\n      };\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "test/storage": {
+          "path": "test/storage",
+          "content": "(function() {\n  var Storage, equal;\n\n  Storage = require(\"../main\");\n\n  equal = assert.equal;\n\n  describe(\"Storage\", function() {\n    it(\"should set and get\", function() {\n      var object, ret;\n      object = {\n        key: \"test\",\n        cool: true,\n        num: 17,\n        sub: {\n          a: true,\n          b: 14,\n          c: \"str\"\n        }\n      };\n      Storage.set(\"__TEST\", object);\n      ret = Storage.get(\"__TEST\");\n      equal(ret.key, object.key);\n      equal(ret.cool, object.cool);\n      equal(ret.num, object.num);\n      equal(ret.sub.a, object.sub.a);\n      equal(ret.sub.b, object.sub.b);\n      equal(ret.sub.c, object.sub.c);\n      Storage.set(\"__TEST\", 0);\n      ret = Storage.get(\"__TEST\");\n      equal(ret, 0);\n      Storage.set(\"__TEST\", false);\n      ret = Storage.get(\"__TEST\");\n      equal(ret, false);\n      Storage.set(\"__TEST\", \"\");\n      ret = Storage.get(\"__TEST\");\n      return equal(ret, \"\");\n    });\n    return it(\"should have Storage.new\", function() {\n      var key, local;\n      local = Storage[\"new\"](\"TEST\");\n      key = \"a test value\";\n      local.set(key, true);\n      equal(local.get(key), true);\n      return equal(Storage.get(key), null);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/storage.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.0\"};",
+          "type": "blob"
+        }
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "version": "0.1.0",
+      "entryPoint": "main",
+      "repository": {
+        "id": 15595932,
+        "name": "storage",
+        "full_name": "distri/storage",
+        "owner": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/distri/storage",
+        "description": "Store data in local storage",
+        "fork": false,
+        "url": "https://api.github.com/repos/distri/storage",
+        "forks_url": "https://api.github.com/repos/distri/storage/forks",
+        "keys_url": "https://api.github.com/repos/distri/storage/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/distri/storage/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/distri/storage/teams",
+        "hooks_url": "https://api.github.com/repos/distri/storage/hooks",
+        "issue_events_url": "https://api.github.com/repos/distri/storage/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/distri/storage/events",
+        "assignees_url": "https://api.github.com/repos/distri/storage/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/distri/storage/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/distri/storage/tags",
+        "blobs_url": "https://api.github.com/repos/distri/storage/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/distri/storage/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/distri/storage/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/distri/storage/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/distri/storage/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/distri/storage/languages",
+        "stargazers_url": "https://api.github.com/repos/distri/storage/stargazers",
+        "contributors_url": "https://api.github.com/repos/distri/storage/contributors",
+        "subscribers_url": "https://api.github.com/repos/distri/storage/subscribers",
+        "subscription_url": "https://api.github.com/repos/distri/storage/subscription",
+        "commits_url": "https://api.github.com/repos/distri/storage/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/distri/storage/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/distri/storage/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/distri/storage/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/distri/storage/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/distri/storage/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/distri/storage/merges",
+        "archive_url": "https://api.github.com/repos/distri/storage/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/distri/storage/downloads",
+        "issues_url": "https://api.github.com/repos/distri/storage/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/distri/storage/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/distri/storage/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/distri/storage/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/distri/storage/labels{/name}",
+        "releases_url": "https://api.github.com/repos/distri/storage/releases{/id}",
+        "created_at": "2014-01-02T22:58:53Z",
+        "updated_at": "2014-01-02T22:58:53Z",
+        "pushed_at": "2014-01-02T22:58:53Z",
+        "git_url": "git://github.com/distri/storage.git",
+        "ssh_url": "git@github.com:distri/storage.git",
+        "clone_url": "https://github.com/distri/storage.git",
+        "svn_url": "https://github.com/distri/storage",
+        "homepage": null,
+        "size": 0,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "organization": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "network_count": 0,
+        "subscribers_count": 2,
+        "branch": "v0.1.0",
+        "defaultBranch": "master"
+      },
+      "dependencies": {}
     }
   }
 });
