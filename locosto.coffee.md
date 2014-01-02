@@ -1,7 +1,7 @@
 Locosto
 =======
 
-Store blobs locally until they've been uploaded to S3
+Store blobs locally and uploadeds them to S3
 
     CryptoJS = require "./lib/crypto"
     SHA1 = CryptoJS.SHA1
@@ -15,7 +15,13 @@ Store blobs locally until they've been uploaded to S3
 
     remember = (name, sha) ->
       names[name] = sha
+      persist()
 
+    forget = (name) ->
+      delete names[name]
+      persist()
+
+    persist = ->
       localStorage[key] = JSON.stringify(names)
 
     # If you call crossOrigin, but use the url in a normal request rather than a cross
@@ -44,11 +50,10 @@ Store blobs locally until they've been uploaded to S3
         blobTypedArray file, (arrayBuffer) ->
           sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
 
-          # Save SHA as a key
-          remember(sha, sha)
-
           uploadBlobby file, ->
             completed?(sha)
+
+      forget: forget
 
       names: ->
         names

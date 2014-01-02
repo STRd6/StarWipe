@@ -3,12 +3,13 @@ Star Wipe
 
     require "./setup"
     Dust = require "dust"
-    
+
     Locosto = require "./locosto"
 
     {width, height} = require "./pixie"
 
-    Puppet = require "./puppet"
+    # Need to require to register constructor
+    require "./puppet"
 
     engine = Dust.init
       width: width
@@ -19,7 +20,7 @@ Star Wipe
     engine.include require "./room_editor"
     engine.include require "./toolbox"
 
-    handleImage = ({dataURL, file}) ->
+    handleImage = ({file}) ->
       Locosto.store file, engine.addItem
 
     $(document).pasteImageReader handleImage

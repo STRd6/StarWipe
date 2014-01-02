@@ -24,6 +24,10 @@ Puppet
           I.width = sprite.width
           I.height = sprite.height
 
+      # TODO: Extract to a module "zSort by y"
+      self.on "update", ->
+        I.zIndex = I.y
+
       return self
 
     GameObject.registry.Puppet = Puppet

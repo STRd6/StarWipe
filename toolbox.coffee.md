@@ -5,6 +5,9 @@ Toolbox
 
     {floor, min} = Math
 
+    # TODO: Item sets or scrollable items?
+    # Page up/page down
+
     scaleToContain = (sprite, size) ->
       min 1, size / sprite.width, size / sprite.height
 
@@ -51,7 +54,9 @@ Toolbox
               y: position.y
 
         if justPressed.del
-          items.remove(items[selectedIndex])
+          if itemToRemove = items[selectedIndex]
+            items.remove(itemToRemove)
+            Locosto.forget itemToRemove.name
 
       self.extend
         addItem: (sha) ->
