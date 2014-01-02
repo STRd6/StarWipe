@@ -84,7 +84,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
           y: position.y
 
     <span class="keyword">if</span> justPressed.del
-      items.remove(items[selectedIndex])</code></pre>
+      items.remove(items[selectedIndex])
+
+  self.extend
+    addItem: (sha) -&gt;
+      items.push
+        name: sha
+        sprite: Locosto.sprite sha</code></pre>
 </div>
         </li>
         

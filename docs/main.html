@@ -53,35 +53,10 @@ engine.include require <span class="string">"./room_editor"</span>
 engine.include require <span class="string">"./toolbox"</span>
 
 <span class="function"><span class="title">handleImage</span></span> = ({dataURL, file}) -&gt;
-  <span class="comment"># Sync on addressable</span>
-  Locosto.store(file)
-
-  <span class="comment"># Add object to screen</span>
-  engine.add <span class="string">"Puppet"</span>,
-    x: width/<span class="number">2</span>
-    y: height/<span class="number">2</span>
-    width: <span class="number">100</span>
-    height: <span class="number">100</span>
-    spriteURL: dataURL
+  Locosto.store file, engine.addItem
 
 $(document).pasteImageReader handleImage
 $(document).dropImageReader handleImage
-
-engine.add <span class="string">"Puppet"</span>,
-  width: <span class="number">200</span>
-  height: <span class="number">200</span>
-  x: width/<span class="number">2</span>
-  y: height/<span class="number">2</span>
-  spriteURL: Locosto.url(<span class="string">"62f8bdd7c28650a2b77393f37792fd39cd3121b9"</span>)
-  components: [{
-    class: <span class="string">"Puppet"</span>
-    x: width/<span class="number">2</span>
-    spriteURL: Locosto.url(<span class="string">"62f8bdd7c28650a2b77393f37792fd39cd3121b9"</span>)
-  }, {
-    class: <span class="string">"Puppet"</span>
-    x: -width/<span class="number">2</span>
-    spriteURL: Locosto.url(<span class="string">"62f8bdd7c28650a2b77393f37792fd39cd3121b9"</span>)
-  }]
 
 window.engine = engine</code></pre>
 </div>
