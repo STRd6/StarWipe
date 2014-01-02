@@ -5,13 +5,13 @@ Store blobs locally and uploadeds them to S3
 
     CryptoJS = require "./lib/crypto"
     SHA1 = CryptoJS.SHA1
+    Storage = require "storage"
+
+    storage = Storage.new "StarWipe"
 
     # Name -> SHA1 mapping
     key = "image_sha_names"
-    try
-      names = JSON.parse(localStorage[key])
-    catch
-      names = {}
+    names = storage.get(key) or {}
 
     remember = (name, sha) ->
       names[name] = sha
@@ -22,7 +22,7 @@ Store blobs locally and uploadeds them to S3
       persist()
 
     persist = ->
-      localStorage[key] = JSON.stringify(names)
+      storage.set key, names
 
     # If you call crossOrigin, but use the url in a normal request rather than a cross
     # origin request CloudFront will cache the wrong headers making it unusable, so don't
@@ -37,7 +37,7 @@ Store blobs locally and uploadeds them to S3
       else
         url
 
-    module.exports = Locosto = 
+    module.exports = Locosto =
       url: (name) ->
         if sha = names[name]
           urlForSha(sha)
@@ -54,6 +54,8 @@ Store blobs locally and uploadeds them to S3
             completed?(sha)
 
       forget: forget
+      
+      remember: remember
 
       names: ->
         names

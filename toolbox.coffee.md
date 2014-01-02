@@ -60,6 +60,8 @@ Toolbox
 
       self.extend
         addItem: (sha) ->
+          Locosto.remember sha, sha
+
           items.push
             name: sha
             sprite: Locosto.sprite sha

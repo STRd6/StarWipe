@@ -6,3 +6,4 @@ remoteDependencies: [
 ]
 dependencies:
   dust: "distri/dust:v0.1.5"
+  storage: "distri/storage:v0.1.0"
