@@ -38,6 +38,9 @@
 
 {floor, min} = Math
 
+<span class="comment"># TODO: Item sets or scrollable items?</span>
+<span class="comment"># Page up/page down</span>
+
 <span class="function"><span class="title">scaleToContain</span></span> = (sprite, size) -&gt;
   min <span class="number">1</span>, size / sprite.width, size / sprite.height
 
@@ -84,7 +87,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
           y: position.y
 
     <span class="keyword">if</span> justPressed.del
-      items.remove(items[selectedIndex])
+      <span class="keyword">if</span> itemToRemove = items[selectedIndex]
+        items.remove(itemToRemove)
+        Locosto.forget itemToRemove.name
 
   self.extend
     addItem: (sha) -&gt;

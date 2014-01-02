@@ -41,7 +41,8 @@ Locosto = require <span class="string">"./locosto"</span>
 
 {width, height} = require <span class="string">"./pixie"</span>
 
-Puppet = require <span class="string">"./puppet"</span>
+<span class="comment"># Need to require to register constructor</span>
+require <span class="string">"./puppet"</span>
 
 engine = Dust.init
   width: width
@@ -52,7 +53,7 @@ engine.include require <span class="string">"./selectin"</span>
 engine.include require <span class="string">"./room_editor"</span>
 engine.include require <span class="string">"./toolbox"</span>
 
-<span class="function"><span class="title">handleImage</span></span> = ({dataURL, file}) -&gt;
+<span class="function"><span class="title">handleImage</span></span> = ({file}) -&gt;
   Locosto.store file, engine.addItem
 
 $(document).pasteImageReader handleImage

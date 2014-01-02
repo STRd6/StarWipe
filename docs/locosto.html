@@ -32,7 +32,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Store blobs locally until they&#39;ve been uploaded to S3</p>
+              <p>Store blobs locally and uploadeds them to S3</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">CryptoJS = require <span class="string">"./lib/crypto"</span>
@@ -47,7 +47,13 @@ key = <span class="string">"image_sha_names"</span>
 
 <span class="function"><span class="title">remember</span></span> = (name, sha) -&gt;
   names[name] = sha
+  persist()
 
+<span class="function"><span class="title">forget</span></span> = (name) -&gt;
+  <span class="keyword">delete</span> names[name]
+  persist()
+
+<span class="function"><span class="title">persist</span></span> = -&gt;
   localStorage[key] = JSON.stringify(names)
 
 <span class="comment"># If you call crossOrigin, but use the url in a normal request rather than a cross</span>
@@ -76,11 +82,10 @@ module.exports = Locosto =
     blobTypedArray file, (arrayBuffer) -&gt;
       sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
 
-      <span class="comment"># Save SHA as a key</span>
-      remember(sha, sha)
-
       uploadBlobby file, -&gt;
         completed?(sha)
+
+  forget: forget
 
   names: -&gt;
     names
