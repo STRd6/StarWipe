@@ -3,28 +3,19 @@ Room Editor
 
 Switch between rooms and edit them.
 
-    # Name -> SHA1 mapping
-    key = "image_sha_names"
-    try
-      names = JSON.parse(localStorage[key])
-    catch
-      names = {}
+    Storage = require "storage"
+    storage = Storage.new "StarWipe"
 
-    remember = (name, sha) ->
-      names[name] = sha
-      persist()
-
-    forget = (name) ->
-      delete names[name]
-      persist()
+    key = "room_data"
+    rooms = storage.get(key) or []
 
     persist = ->
-      localStorage[key] = JSON.stringify(names)
+      storage.set key, rooms
 
     module.exports = (I={}, self) ->
       choice = 0
 
-      rooms = []
+      self.loadState(rooms[choice] or [])
 
       changeRoom = (newChoice) ->
         if newChoice != choice
@@ -49,3 +40,4 @@ Switch between rooms and edit them.
 
         if newChoice?
           changeRoom newChoice
+          persist()
