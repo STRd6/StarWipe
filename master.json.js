@@ -15,7 +15,7 @@ window["STRd6/StarWipe:master"]({
     "TODO.md": {
       "path": "TODO.md",
       "mode": "100644",
-      "content": "TODO\n====\n\nPersist Scenes\nScene item tweening/keyframes\n",
+      "content": "TODO\n====\n\nScene item tweening/keyframes\n",
       "type": "blob"
     },
     "draggin.coffee.md": {
