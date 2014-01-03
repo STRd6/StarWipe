@@ -47,6 +47,7 @@ rooms = storage.get(key) <span class="keyword">or</span> []
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   choice = <span class="number">0</span>
   frame = <span class="number">0</span>
+  frameStep = <span class="number">4</span>
   FPS = <span class="number">60</span>
 
   self.loadState(rooms[choice] <span class="keyword">or</span> [])
@@ -84,12 +85,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       persist()
 
     <span class="keyword">if</span> justPressed[<span class="string">"="</span>] <span class="keyword">and</span> keydown.shift
-      frame += <span class="number">4</span>
+      frame += frameStep
 
     <span class="keyword">if</span> justPressed[<span class="string">"-"</span>]
-      frame -= <span class="number">4</span>
+      frame -= frameStep
 
-    frame = frame.clamp(<span class="number">0</span>, <span class="number">60</span>)</code></pre>
+    frame = frame.clamp(<span class="number">0</span>, FPS - frameStep)</code></pre>
 </div>
         </li>
         
