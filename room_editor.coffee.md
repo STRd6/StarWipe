@@ -18,6 +18,9 @@ Switch between rooms and edit them.
       frameStep = 4
       FPS = 60
 
+      t = ->
+        (frame / FPS).toFixed(2)
+
       self.loadState(rooms[choice] or [])
 
       changeRoom = (newChoice) ->
@@ -39,7 +42,7 @@ Switch between rooms and edit them.
           font: "24px bold consolas, monospace"
           x: 850
           y: 25
-          text: "t = #{(frame / FPS).toFixed(2)}"
+          text: "t = #{t()}"
 
       self.on "update", ->
         newChoice = null
@@ -59,3 +62,13 @@ Switch between rooms and edit them.
           frame -= frameStep
 
         frame = frame.clamp(0, FPS - frameStep)
+
+        self.applyKeyframes()
+
+      self.extend
+        setKeyframe: (object, properties) ->
+          object.setKeyframe t(), properties
+
+        applyKeyframes: ->
+          self.objects().forEach (object) ->
+            object.applyKeyframe(t())

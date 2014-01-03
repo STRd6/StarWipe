@@ -14,4 +14,7 @@ Store animation info in keyframes
 
         applyKeyframe: (t) ->
           # TODO: Tweening
+          if I.keyframes[t]
+            debugger
+
           extend I, (I.keyframes[t] or {})

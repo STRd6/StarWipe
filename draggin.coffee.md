@@ -20,6 +20,11 @@ An engine module that allows "drag to move" for objects.
             newPosition = objectStartPosition.add(delta)
 
             active.position(newPosition)
+
+            self.setKeyframe active,
+              x: newPosition.x
+              y: newPosition.y
+
         else if mouseReleased.left
           active = null
 
