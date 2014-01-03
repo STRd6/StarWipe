@@ -36,6 +36,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">GameObject = require(<span class="string">"dust"</span>).GameObject
 Compositions = require(<span class="string">"./lib/compositions"</span>)
+Keyframes = require <span class="string">"./keyframes"</span>
 
 <span class="comment"># TODO: Expose this more gracefully</span>
 {defaults} = require <span class="string">"dust/util"</span>
@@ -60,6 +61,8 @@ Compositions = require(<span class="string">"./lib/compositions"</span>)
   <span class="comment"># TODO: Extract to a module "zSort by y"</span>
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
     I.zIndex = I.y
+
+  self.include Keyframes
 
   <span class="keyword">return</span> self
 

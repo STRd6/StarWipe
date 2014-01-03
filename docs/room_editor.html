@@ -46,7 +46,8 @@ rooms = storage.get(key) <span class="keyword">or</span> []
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   choice = <span class="number">0</span>
-  t = <span class="number">0</span>
+  frame = <span class="number">0</span>
+  FPS = <span class="number">60</span>
 
   self.loadState(rooms[choice] <span class="keyword">or</span> [])
 
@@ -64,6 +65,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       y: <span class="number">50</span>
       text: <span class="string">"Room: #<span class="subst">#{choice}</span>"</span>
 
+    canvas.drawText
+      color: <span class="string">"white"</span>
+      font: <span class="string">"24px bold consolas, monospace"</span>
+      x: <span class="number">850</span>
+      y: <span class="number">25</span>
+      text: <span class="string">"t = <span class="subst">#{(frame / FPS).toFixed(<span class="number">2</span>)}</span>"</span>
+
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
     newChoice = <span class="literal">null</span>
 
@@ -73,7 +81,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     <span class="keyword">if</span> newChoice?
       changeRoom newChoice
-      persist()</code></pre>
+      persist()
+
+    <span class="keyword">if</span> justPressed[<span class="string">"="</span>] <span class="keyword">and</span> keydown.shift
+      frame += <span class="number">4</span>
+
+    <span class="keyword">if</span> justPressed[<span class="string">"-"</span>]
+      frame -= <span class="number">4</span>
+
+    frame = frame.clamp(<span class="number">0</span>, <span class="number">60</span>)</code></pre>
 </div>
         </li>
         
