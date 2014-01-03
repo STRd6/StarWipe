@@ -14,6 +14,7 @@ Switch between rooms and edit them.
 
     module.exports = (I={}, self) ->
       choice = 0
+      t = 0
 
       self.loadState(rooms[choice] or [])
 

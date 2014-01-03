@@ -3,7 +3,7 @@ Puppet
 
     GameObject = require("dust").GameObject
     Compositions = require("./lib/compositions")
-    
+
     # TODO: Expose this more gracefully
     {defaults} = require "dust/util"
 

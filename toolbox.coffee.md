@@ -16,11 +16,14 @@ Toolbox
         name: name
         sprite: Locosto.sprite name
       selectedIndex = 0
-      itemHeight = 100
-      itemWidth = 100
+      itemHeight = 72
+      itemWidth = 72
+
+      page = 0
+      pageSize = 8
 
       self.on "overlay", (canvas) ->
-        items.forEach ({sprite}, i) ->
+        items.slice(page * pageSize, pageSize).forEach ({sprite}, i) ->
           scale = scaleToContain(sprite, itemHeight)
           position = Point(itemWidth/2, (i + 0.5) * itemHeight)
           canvas.withTransform Matrix.translation(position.x, position.y), ->
@@ -31,8 +34,8 @@ Toolbox
           canvas.drawRect
             x: 0
             y: selectedIndex * itemHeight
-            width: 100
-            height: 100
+            width: itemWidth
+            height: itemHeight
             color: "rgba(0, 255, 255, 0.25)"
 
       self.on "update", ->
@@ -54,9 +57,15 @@ Toolbox
               y: position.y
 
         if justPressed.del
-          if itemToRemove = items[selectedIndex]
+          if itemToRemove = items[selectedIndex + page * pageSize]
             items.remove(itemToRemove)
             Locosto.forget itemToRemove.name
+
+        if justPressed.pageup
+          page += 1
+
+        if justPressed.pagedown
+          page -= 1
 
       self.extend
         addItem: (sha) ->
