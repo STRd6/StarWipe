@@ -3,6 +3,7 @@ Puppet
 
     GameObject = require("dust").GameObject
     Compositions = require("./lib/compositions")
+    Keyframes = require "./keyframes"
 
     # TODO: Expose this more gracefully
     {defaults} = require "dust/util"
@@ -27,6 +28,8 @@ Puppet
       # TODO: Extract to a module "zSort by y"
       self.on "update", ->
         I.zIndex = I.y
+
+      self.include Keyframes
 
       return self
 

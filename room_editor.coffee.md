@@ -14,7 +14,8 @@ Switch between rooms and edit them.
 
     module.exports = (I={}, self) ->
       choice = 0
-      t = 0
+      frame = 0
+      FPS = 60
 
       self.loadState(rooms[choice] or [])
 
@@ -32,6 +33,13 @@ Switch between rooms and edit them.
           y: 50
           text: "Room: ##{choice}"
 
+        canvas.drawText
+          color: "white"
+          font: "24px bold consolas, monospace"
+          x: 850
+          y: 25
+          text: "t = #{(frame / FPS).toFixed(2)}"
+
       self.on "update", ->
         newChoice = null
 
@@ -42,3 +50,11 @@ Switch between rooms and edit them.
         if newChoice?
           changeRoom newChoice
           persist()
+
+        if justPressed["="] and keydown.shift
+          frame += 4
+
+        if justPressed["-"]
+          frame -= 4
+
+        frame = frame.clamp(0, 60)
