@@ -50,6 +50,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   frameStep = <span class="number">4</span>
   FPS = <span class="number">60</span>
 
+  <span class="function"><span class="title">t</span></span> = -&gt;
+    (frame / FPS).toFixed(<span class="number">2</span>)
+
   self.loadState(rooms[choice] <span class="keyword">or</span> [])
 
   <span class="function"><span class="title">changeRoom</span></span> = (newChoice) -&gt;
@@ -71,7 +74,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       font: <span class="string">"24px bold consolas, monospace"</span>
       x: <span class="number">850</span>
       y: <span class="number">25</span>
-      text: <span class="string">"t = <span class="subst">#{(frame / FPS).toFixed(<span class="number">2</span>)}</span>"</span>
+      text: <span class="string">"t = <span class="subst">#{t()}</span>"</span>
 
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
     newChoice = <span class="literal">null</span>
@@ -90,7 +93,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="keyword">if</span> justPressed[<span class="string">"-"</span>]
       frame -= frameStep
 
-    frame = frame.clamp(<span class="number">0</span>, FPS - frameStep)</code></pre>
+    frame = frame.clamp(<span class="number">0</span>, FPS - frameStep)
+
+    self.applyKeyframes()
+
+  self.extend
+    setKeyframe: (object, properties) -&gt;
+      object.setKeyframe t(), properties
+
+    applyKeyframes: -&gt;
+      self.objects().forEach (object) -&gt;
+        object.applyKeyframe(t())</code></pre>
 </div>
         </li>
         
