@@ -49,11 +49,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     name: name
     sprite: Locosto.sprite name
   selectedIndex = <span class="number">0</span>
-  itemHeight = <span class="number">100</span>
-  itemWidth = <span class="number">100</span>
+  itemHeight = <span class="number">72</span>
+  itemWidth = <span class="number">72</span>
+
+  page = <span class="number">0</span>
+  pageSize = <span class="number">8</span>
 
   self.<span class="literal">on</span> <span class="string">"overlay"</span>, (canvas) -&gt;
-    items.forEach ({sprite}, i) -&gt;
+    items.slice(page * pageSize, pageSize).forEach ({sprite}, i) -&gt;
       scale = scaleToContain(sprite, itemHeight)
       position = Point(itemWidth/<span class="number">2</span>, (i + <span class="number">0.5</span>) * itemHeight)
       canvas.withTransform Matrix.translation(position.x, position.y), -&gt;
@@ -64,8 +67,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       canvas.drawRect
         x: <span class="number">0</span>
         y: selectedIndex * itemHeight
-        width: <span class="number">100</span>
-        height: <span class="number">100</span>
+        width: itemWidth
+        height: itemHeight
         color: <span class="string">"rgba(0, 255, 255, 0.25)"</span>
 
   self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
@@ -87,9 +90,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
           y: position.y
 
     <span class="keyword">if</span> justPressed.del
-      <span class="keyword">if</span> itemToRemove = items[selectedIndex]
+      <span class="keyword">if</span> itemToRemove = items[selectedIndex + page * pageSize]
         items.remove(itemToRemove)
         Locosto.forget itemToRemove.name
+
+    <span class="keyword">if</span> justPressed.pageup
+      page += <span class="number">1</span>
+
+    <span class="keyword">if</span> justPressed.pagedown
+      page -= <span class="number">1</span>
 
   self.extend
     addItem: (sha) -&gt;

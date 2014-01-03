@@ -46,6 +46,7 @@ rooms = storage.get(key) <span class="keyword">or</span> []
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   choice = <span class="number">0</span>
+  t = <span class="number">0</span>
 
   self.loadState(rooms[choice] <span class="keyword">or</span> [])
 
