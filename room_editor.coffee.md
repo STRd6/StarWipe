@@ -15,6 +15,7 @@ Switch between rooms and edit them.
     module.exports = (I={}, self) ->
       choice = 0
       frame = 0
+      frameStep = 4
       FPS = 60
 
       self.loadState(rooms[choice] or [])
@@ -52,9 +53,9 @@ Switch between rooms and edit them.
           persist()
 
         if justPressed["="] and keydown.shift
-          frame += 4
+          frame += frameStep
 
         if justPressed["-"]
-          frame -= 4
+          frame -= frameStep
 
-        frame = frame.clamp(0, 60)
+        frame = frame.clamp(0, FPS - frameStep)
