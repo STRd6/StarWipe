@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1388714464292">
+<html manifest="manifest.appcache?1388866549291">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -194,6 +194,12 @@ require('./main')
       "content": "Export\n======\n\nExport game state as data\n\n    module.exports = (I={}, self) ->\n",
       "type": "blob"
     },
+    "keyframes.coffee.md": {
+      "path": "keyframes.coffee.md",
+      "mode": "100644",
+      "content": "Keyframes\n=========\n\nStore animation info in keyframes\n\n    {extend, defaults} = require \"dust/util\"\n    {keys} = Object\n\n    lerp = (a, b, t) ->\n      a + (b - a) * t\n\n    module.exports = (I={}, self) ->\n      I.keyframes ?= {}\n\n      initialName = \"0.00\"\n\n      # Ensure initial keyframe\n      I.keyframes[initialName] ?=\n        x: I.x\n        y: I.y\n\n      keyframeNames = ->\n        keys I.keyframes\n\n      previousFrameTime = (timeName) ->\n        keyframeNames().filter (key) ->\n          key < timeName\n        .last()\n\n      nextFrameTime = (timeName) ->\n        keyframeNames().filter (key) ->\n          key >= timeName\n        .first()\n\n      self.extend\n        setKeyframe: (tName, properties) ->\n          I.keyframes[tName] = properties\n\n        applyKeyframe: (tName) ->\n          prevTimeName = previousFrameTime(tName) or initialName\n          nextTimeName = nextFrameTime(tName) or initialName\n\n          if prevTimeName != nextTimeName\n            prevKeyframe = I.keyframes[prevTimeName]\n            nextKeyframe = I.keyframes[nextTimeName]\n\n            initialTime = parseFloat(prevTimeName)\n            finalTime = parseFloat(nextTimeName) or 1 # Wraps 0 to 1\n            duration = finalTime - initialTime\n            t = (parseFloat(tName) - initialTime) / duration\n\n            keys(prevKeyframe).forEach (propertyName) ->\n              initialValue = prevKeyframe[propertyName]\n              finalValue = nextKeyframe[propertyName]\n\n              lerp(initialValue, finalValue, t)\n",
+      "type": "blob"
+    },
     "lib/compositions.coffee.md": {
       "path": "lib/compositions.coffee.md",
       "mode": "100644",
@@ -271,12 +277,6 @@ require('./main')
       "mode": "100644",
       "content": "Toolbox\n=======\n\n    Locosto = require \"./locosto\"\n\n    {floor, min} = Math\n\n    # TODO: Item sets or scrollable items?\n    # Page up/page down\n\n    scaleToContain = (sprite, size) ->\n      min 1, size / sprite.width, size / sprite.height\n\n    module.exports = (I={}, self) ->\n      items = Object.keys(Locosto.names()).map (name) ->\n        name: name\n        sprite: Locosto.sprite name\n      selectedIndex = 0\n      itemHeight = 72\n      itemWidth = 72\n\n      page = 0\n      pageSize = 8\n\n      self.on \"overlay\", (canvas) ->\n        items.slice(page * pageSize, pageSize).forEach ({sprite}, i) ->\n          scale = scaleToContain(sprite, itemHeight)\n          position = Point(itemWidth/2, (i + 0.5) * itemHeight)\n          canvas.withTransform Matrix.translation(position.x, position.y), ->\n            canvas.withTransform Matrix.scale(scale), ->\n              sprite.draw(canvas, -sprite.width/2, -sprite.height/2)\n\n        if selectedIndex < items.length\n          canvas.drawRect\n            x: 0\n            y: selectedIndex * itemHeight\n            width: itemWidth\n            height: itemHeight\n            color: \"rgba(0, 255, 255, 0.25)\"\n\n      self.on \"update\", ->\n        if mousePressed.left\n          position = mousePosition.copy()\n\n          if position.x < itemWidth\n            selectedIndex = floor position.y / itemHeight\n\n        if mousePressed.right\n          position = mousePosition.copy()\n\n          if selectedIndex < items.length\n            url = Locosto.url(items[selectedIndex].name)\n            self.add\n              class: \"Puppet\"\n              spriteURL: url\n              x: position.x\n              y: position.y\n\n        if justPressed.del\n          if itemToRemove = items[selectedIndex + page * pageSize]\n            items.remove(itemToRemove)\n            Locosto.forget itemToRemove.name\n\n        if justPressed.pageup\n          page += 1\n\n        if justPressed.pagedown\n          page -= 1\n\n      self.extend\n        addItem: (sha) ->\n          Locosto.remember sha, sha\n\n          items.push\n            name: sha\n            sprite: Locosto.sprite sha\n",
       "type": "blob"
-    },
-    "keyframes.coffee.md": {
-      "path": "keyframes.coffee.md",
-      "mode": "100644",
-      "content": "Keyframes\n=========\n\nStore animation info in keyframes\n\n    {extend, defaults} = require \"dust/util\"\n\n    module.exports = (I={}, self) ->\n      I.keyframes ?= {}\n\n      self.extend\n        setKeyframe: (t, properties) ->\n          I.keyframes[t] = properties\n\n        applyKeyframe: (t) ->\n          # TODO: Tweening\n          if I.keyframes[t]\n            debugger\n\n          extend I, (I.keyframes[t] or {})\n",
-      "type": "blob"
     }
   },
   "distribution": {
@@ -288,6 +288,11 @@ require('./main')
     "export": {
       "path": "export",
       "content": "(function() {\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=export.coffee",
+      "type": "blob"
+    },
+    "keyframes": {
+      "path": "keyframes",
+      "content": "(function() {\n  var defaults, extend, keys, lerp, _ref;\n\n  _ref = require(\"dust/util\"), extend = _ref.extend, defaults = _ref.defaults;\n\n  keys = Object.keys;\n\n  lerp = function(a, b, t) {\n    return a + (b - a) * t;\n  };\n\n  module.exports = function(I, self) {\n    var initialName, keyframeNames, nextFrameTime, previousFrameTime, _base;\n    if (I == null) {\n      I = {};\n    }\n    if (I.keyframes == null) {\n      I.keyframes = {};\n    }\n    initialName = \"0.00\";\n    if ((_base = I.keyframes)[initialName] == null) {\n      _base[initialName] = {\n        x: I.x,\n        y: I.y\n      };\n    }\n    keyframeNames = function() {\n      return keys(I.keyframes);\n    };\n    previousFrameTime = function(timeName) {\n      return keyframeNames().filter(function(key) {\n        return key < timeName;\n      }).last();\n    };\n    nextFrameTime = function(timeName) {\n      return keyframeNames().filter(function(key) {\n        return key >= timeName;\n      }).first();\n    };\n    return self.extend({\n      setKeyframe: function(tName, properties) {\n        return I.keyframes[tName] = properties;\n      },\n      applyKeyframe: function(tName) {\n        var duration, finalTime, initialTime, nextKeyframe, nextTimeName, prevKeyframe, prevTimeName, t;\n        prevTimeName = previousFrameTime(tName) || initialName;\n        nextTimeName = nextFrameTime(tName) || initialName;\n        if (prevTimeName !== nextTimeName) {\n          prevKeyframe = I.keyframes[prevTimeName];\n          nextKeyframe = I.keyframes[nextTimeName];\n          initialTime = parseFloat(prevTimeName);\n          finalTime = parseFloat(nextTimeName) || 1;\n          duration = finalTime - initialTime;\n          t = (parseFloat(tName) - initialTime) / duration;\n          return keys(prevKeyframe).forEach(function(propertyName) {\n            var finalValue, initialValue;\n            initialValue = prevKeyframe[propertyName];\n            finalValue = nextKeyframe[propertyName];\n            return lerp(initialValue, finalValue, t);\n          });\n        }\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=keyframes.coffee",
       "type": "blob"
     },
     "lib/compositions": {
@@ -353,11 +358,6 @@ require('./main')
     "toolbox": {
       "path": "toolbox",
       "content": "(function() {\n  var Locosto, floor, min, scaleToContain;\n\n  Locosto = require(\"./locosto\");\n\n  floor = Math.floor, min = Math.min;\n\n  scaleToContain = function(sprite, size) {\n    return min(1, size / sprite.width, size / sprite.height);\n  };\n\n  module.exports = function(I, self) {\n    var itemHeight, itemWidth, items, page, pageSize, selectedIndex;\n    if (I == null) {\n      I = {};\n    }\n    items = Object.keys(Locosto.names()).map(function(name) {\n      return {\n        name: name,\n        sprite: Locosto.sprite(name)\n      };\n    });\n    selectedIndex = 0;\n    itemHeight = 72;\n    itemWidth = 72;\n    page = 0;\n    pageSize = 8;\n    self.on(\"overlay\", function(canvas) {\n      items.slice(page * pageSize, pageSize).forEach(function(_arg, i) {\n        var position, scale, sprite;\n        sprite = _arg.sprite;\n        scale = scaleToContain(sprite, itemHeight);\n        position = Point(itemWidth / 2, (i + 0.5) * itemHeight);\n        return canvas.withTransform(Matrix.translation(position.x, position.y), function() {\n          return canvas.withTransform(Matrix.scale(scale), function() {\n            return sprite.draw(canvas, -sprite.width / 2, -sprite.height / 2);\n          });\n        });\n      });\n      if (selectedIndex < items.length) {\n        return canvas.drawRect({\n          x: 0,\n          y: selectedIndex * itemHeight,\n          width: itemWidth,\n          height: itemHeight,\n          color: \"rgba(0, 255, 255, 0.25)\"\n        });\n      }\n    });\n    self.on(\"update\", function() {\n      var itemToRemove, position, url;\n      if (mousePressed.left) {\n        position = mousePosition.copy();\n        if (position.x < itemWidth) {\n          selectedIndex = floor(position.y / itemHeight);\n        }\n      }\n      if (mousePressed.right) {\n        position = mousePosition.copy();\n        if (selectedIndex < items.length) {\n          url = Locosto.url(items[selectedIndex].name);\n          self.add({\n            \"class\": \"Puppet\",\n            spriteURL: url,\n            x: position.x,\n            y: position.y\n          });\n        }\n      }\n      if (justPressed.del) {\n        if (itemToRemove = items[selectedIndex + page * pageSize]) {\n          items.remove(itemToRemove);\n          Locosto.forget(itemToRemove.name);\n        }\n      }\n      if (justPressed.pageup) {\n        page += 1;\n      }\n      if (justPressed.pagedown) {\n        return page -= 1;\n      }\n    });\n    return self.extend({\n      addItem: function(sha) {\n        Locosto.remember(sha, sha);\n        return items.push({\n          name: sha,\n          sprite: Locosto.sprite(sha)\n        });\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=toolbox.coffee",
-      "type": "blob"
-    },
-    "keyframes": {
-      "path": "keyframes",
-      "content": "(function() {\n  var defaults, extend, _ref;\n\n  _ref = require(\"dust/util\"), extend = _ref.extend, defaults = _ref.defaults;\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (I.keyframes == null) {\n      I.keyframes = {};\n    }\n    return self.extend({\n      setKeyframe: function(t, properties) {\n        return I.keyframes[t] = properties;\n      },\n      applyKeyframe: function(t) {\n        if (I.keyframes[t]) {\n          debugger;\n        }\n        return extend(I, I.keyframes[t] || {});\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=keyframes.coffee",
       "type": "blob"
     }
   },
@@ -433,8 +433,8 @@ require('./main')
     "labels_url": "https://api.github.com/repos/STRd6/StarWipe/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/StarWipe/releases{/id}",
     "created_at": "2013-12-30T00:41:08Z",
-    "updated_at": "2014-01-02T04:04:38Z",
-    "pushed_at": "2014-01-02T04:04:38Z",
+    "updated_at": "2014-01-03T02:01:24Z",
+    "pushed_at": "2014-01-03T02:01:22Z",
     "git_url": "git://github.com/STRd6/StarWipe.git",
     "ssh_url": "git@github.com:STRd6/StarWipe.git",
     "clone_url": "https://github.com/STRd6/StarWipe.git",

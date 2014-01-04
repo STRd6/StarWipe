@@ -36,20 +36,56 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">{extend, defaults} = require <span class="string">"dust/util"</span>
+{keys} = Object
+
+<span class="function"><span class="title">lerp</span></span> = (a, b, t) -&gt;
+  a + (b - a) * t
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   I.keyframes ?= {}
 
+  initialName = <span class="string">"0.00"</span>
+
+  <span class="comment"># Ensure initial keyframe</span>
+  I.keyframes[initialName] ?=
+    x: I.x
+    y: I.y
+
+  <span class="function"><span class="title">keyframeNames</span></span> = -&gt;
+    keys I.keyframes
+
+  <span class="function"><span class="title">previousFrameTime</span></span> = (timeName) -&gt;
+    keyframeNames().filter (key) -&gt;
+      key &lt; timeName
+    .last()
+
+  <span class="function"><span class="title">nextFrameTime</span></span> = (timeName) -&gt;
+    keyframeNames().filter (key) -&gt;
+      key &gt;= timeName
+    .first()
+
   self.extend
-    setKeyframe: (t, properties) -&gt;
-      I.keyframes[t] = properties
+    setKeyframe: (tName, properties) -&gt;
+      I.keyframes[tName] = properties
 
-    applyKeyframe: (t) -&gt;
-      <span class="comment"># TODO: Tweening</span>
-      <span class="keyword">if</span> I.keyframes[t]
-        <span class="keyword">debugger</span>
+    applyKeyframe: (tName) -&gt;
+      prevTimeName = previousFrameTime(tName) <span class="keyword">or</span> initialName
+      nextTimeName = nextFrameTime(tName) <span class="keyword">or</span> initialName
 
-      extend I, (I.keyframes[t] <span class="keyword">or</span> {})</code></pre>
+      <span class="keyword">if</span> prevTimeName != nextTimeName
+        prevKeyframe = I.keyframes[prevTimeName]
+        nextKeyframe = I.keyframes[nextTimeName]
+
+        initialTime = parseFloat(prevTimeName)
+        finalTime = parseFloat(nextTimeName) <span class="keyword">or</span> <span class="number">1</span> <span class="comment"># Wraps 0 to 1</span>
+        duration = finalTime - initialTime
+        t = (parseFloat(tName) - initialTime) / duration
+
+        keys(prevKeyframe).forEach (propertyName) -&gt;
+          initialValue = prevKeyframe[propertyName]
+          finalValue = nextKeyframe[propertyName]
+
+          lerp(initialValue, finalValue, t)</code></pre>
 </div>
         </li>
         
