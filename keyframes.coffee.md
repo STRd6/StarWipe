@@ -53,4 +53,4 @@ Store animation info in keyframes
               initialValue = prevKeyframe[propertyName]
               finalValue = nextKeyframe[propertyName]
 
-              lerp(initialValue, finalValue, t)
+              I[propertyName] = lerp(initialValue, finalValue, t)
