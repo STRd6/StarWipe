@@ -4,7 +4,7 @@ Star Wipe
     require "./setup"
     Dust = require "dust"
 
-    Locosto = require "./locosto"
+    S3CAS = require "./lib/s3cas"
 
     {width, height} = require "./pixie"
 
@@ -21,7 +21,7 @@ Star Wipe
     engine.include require "./toolbox"
 
     handleImage = ({file}) ->
-      Locosto.store file, engine.addItem
+      S3CAS.store file, engine.addItem
 
     $(document).pasteImageReader handleImage
     $(document).dropImageReader handleImage
