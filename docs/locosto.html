@@ -32,12 +32,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Store blobs locally and uploadeds them to S3</p>
+              <p>Remember SHAs of resources.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">CryptoJS = require <span class="string">"./lib/crypto"</span>
-SHA1 = CryptoJS.SHA1
-Storage = require <span class="string">"storage"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Storage = require <span class="string">"storage"</span>
 
 storage = Storage.<span class="keyword">new</span> <span class="string">"StarWipe"</span>
 

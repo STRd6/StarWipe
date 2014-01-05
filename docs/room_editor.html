@@ -35,7 +35,9 @@
               <p>Switch between rooms and edit them.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Storage = require <span class="string">"storage"</span>
+            <div class="content"><pre><code class="lang-coffeescript">S3CAS = require <span class="string">"./lib/s3cas"</span>
+
+Storage = require <span class="string">"storage"</span>
 storage = Storage.<span class="keyword">new</span> <span class="string">"StarWipe"</span>
 
 key = <span class="string">"room_data"</span>
@@ -97,13 +99,25 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     self.applyKeyframes()
 
+  self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
+    <span class="keyword">if</span> justPressed.f10
+      console.log <span class="string">"uploading"</span>
+      self.storeRoomData()
+
   self.extend
     setKeyframe: (object, properties) -&gt;
       object.setKeyframe t(), properties
 
     applyKeyframes: -&gt;
       self.objects().forEach (object) -&gt;
-        object.applyKeyframe(t())</code></pre>
+        object.applyKeyframe(t())
+
+    storeRoomData: -&gt;
+      blob = <span class="keyword">new</span> Blob [JSON.stringify(rooms)],
+        type: <span class="string">"application/json"</span>
+
+      S3CAS.store blob, (sha) -&gt;
+        console.log sha</code></pre>
 </div>
         </li>
         
