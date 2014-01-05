@@ -3,6 +3,8 @@ Room Editor
 
 Switch between rooms and edit them.
 
+    S3CAS = require "./lib/s3cas"
+
     Storage = require "storage"
     storage = Storage.new "StarWipe"
 
@@ -65,6 +67,11 @@ Switch between rooms and edit them.
 
         self.applyKeyframes()
 
+      self.on "update", ->
+        if justPressed.f10
+          console.log "uploading"
+          self.storeRoomData()
+
       self.extend
         setKeyframe: (object, properties) ->
           object.setKeyframe t(), properties
@@ -72,3 +79,10 @@ Switch between rooms and edit them.
         applyKeyframes: ->
           self.objects().forEach (object) ->
             object.applyKeyframe(t())
+
+        storeRoomData: ->
+          blob = new Blob [JSON.stringify(rooms)],
+            type: "application/json"
+
+          S3CAS.store blob, (sha) ->
+            console.log sha

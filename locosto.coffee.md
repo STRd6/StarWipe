@@ -1,10 +1,8 @@
 Locosto
 =======
 
-Store blobs locally and uploadeds them to S3
+Remember SHAs of resources.
 
-    CryptoJS = require "./lib/crypto"
-    SHA1 = CryptoJS.SHA1
     Storage = require "storage"
 
     storage = Storage.new "StarWipe"
