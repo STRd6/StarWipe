@@ -37,7 +37,7 @@
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
 Dust = require <span class="string">"dust"</span>
 
-Locosto = require <span class="string">"./locosto"</span>
+S3CAS = require <span class="string">"./lib/s3cas"</span>
 
 {width, height} = require <span class="string">"./pixie"</span>
 
@@ -54,7 +54,7 @@ engine.include require <span class="string">"./room_editor"</span>
 engine.include require <span class="string">"./toolbox"</span>
 
 <span class="function"><span class="title">handleImage</span></span> = ({file}) -&gt;
-  Locosto.store file, engine.addItem
+  S3CAS.store file, engine.addItem
 
 $(document).pasteImageReader handleImage
 $(document).dropImageReader handleImage

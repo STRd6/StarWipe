@@ -78,42 +78,12 @@ module.exports = Locosto =
     <span class="keyword">if</span> url = Locosto.url(name)
       Sprite.load url
 
-  store: (file, completed) -&gt;
-    blobTypedArray file, (arrayBuffer) -&gt;
-      sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
-
-      uploadBlobby file, -&gt;
-        completed?(sha)
-
   forget: forget
 
   remember: remember
 
   names: -&gt;
-    names
-
-<span class="function"><span class="title">blobTypedArray</span></span> = (blob, fn) -&gt;
-  reader = <span class="keyword">new</span> FileReader()
-
-  reader.<span class="function"><span class="title">onloadend</span></span> = -&gt;
-    fn?(reader.result)
-
-  reader.readAsArrayBuffer(blob)
-
-<span class="function"><span class="title">uploadBlobby</span></span> = (blob, complete) -&gt;
-  url = <span class="string">"http://addressable.herokuapp.com"</span>
-  <span class="comment"># url = "http://locohost:9393"</span>
-
-  form = <span class="keyword">new</span> FormData
-  form.append <span class="string">"data"</span>, blob
-
-  request = <span class="keyword">new</span> XMLHttpRequest()
-
-  request.<span class="function"><span class="title">onload</span></span> = -&gt;
-    complete?()
-
-  request.open(<span class="string">"POST"</span>, url)
-  request.send(form)</code></pre>
+    names</code></pre>
 </div>
         </li>
         

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>lib/s3cas</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="star-wipe">Star Wipe</h1>
+              <h1 id="s3-cas">S3 CAS</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,34 +32,43 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              
+              <p>Store file blobs in a namespaced content addressable store.</p>
+<p>TODO: Namespacing of store</p>
+
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
-Dust = require <span class="string">"dust"</span>
+            <div class="content"><pre><code class="lang-coffeescript">CryptoJS = require <span class="string">"./crypto"</span>
+SHA1 = CryptoJS.SHA1
 
-S3CAS = require <span class="string">"./lib/s3cas"</span>
+module.exports =
+  store: (file, completed) -&gt;
+    blobTypedArray file, (arrayBuffer) -&gt;
+      sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
 
-{width, height} = require <span class="string">"./pixie"</span>
+      uploadBlobby file, -&gt;
+        completed?(sha)
 
-<span class="comment"># Need to require to register constructor</span>
-require <span class="string">"./puppet"</span>
+<span class="function"><span class="title">blobTypedArray</span></span> = (blob, fn) -&gt;
+  reader = <span class="keyword">new</span> FileReader()
 
-engine = Dust.init
-  width: width
-  height: height
+  reader.<span class="function"><span class="title">onloadend</span></span> = -&gt;
+    fn?(reader.result)
 
-engine.include require <span class="string">"./draggin"</span>
-engine.include require <span class="string">"./selectin"</span>
-engine.include require <span class="string">"./room_editor"</span>
-engine.include require <span class="string">"./toolbox"</span>
+  reader.readAsArrayBuffer(blob)
 
-<span class="function"><span class="title">handleImage</span></span> = ({file}) -&gt;
-  S3CAS.store file, engine.addItem
+<span class="function"><span class="title">uploadBlobby</span></span> = (blob, complete) -&gt;
+  url = <span class="string">"http://addressable.herokuapp.com"</span>
+  <span class="comment"># url = "http://locohost:9393"</span>
 
-$(document).pasteImageReader handleImage
-$(document).dropImageReader handleImage
+  form = <span class="keyword">new</span> FormData
+  form.append <span class="string">"data"</span>, blob
 
-window.engine = engine</code></pre>
+  request = <span class="keyword">new</span> XMLHttpRequest()
+
+  request.<span class="function"><span class="title">onload</span></span> = -&gt;
+    complete?()
+
+  request.open(<span class="string">"POST"</span>, url)
+  request.send(form)</code></pre>
 </div>
         </li>
         
@@ -77,6 +86,6 @@ window.engine = engine</code></pre>
   }).then(function(PACKAGE) {
     Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
   })
-</script><script src="package.js"></script>
+</script><script src="../package.js"></script>
 </body>
 </html>
