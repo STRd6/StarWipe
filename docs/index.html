@@ -53,8 +53,10 @@ engine.include require <span class="string">"./selectin"</span>
 engine.include require <span class="string">"./room_editor"</span>
 engine.include require <span class="string">"./toolbox"</span>
 
+namespace = <span class="string">"starwipe"</span>
+
 <span class="function"><span class="title">handleImage</span></span> = ({file}) -&gt;
-  S3CAS.store file, engine.addItem
+  S3CAS.store namespace, file, engine.addItem
 
 $(document).pasteImageReader handleImage
 $(document).dropImageReader handleImage

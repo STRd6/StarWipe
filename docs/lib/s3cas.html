@@ -33,19 +33,18 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>Store file blobs in a namespaced content addressable store.</p>
-<p>TODO: Namespacing of store</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">CryptoJS = require <span class="string">"./crypto"</span>
 SHA1 = CryptoJS.SHA1
 
 module.exports =
-  store: (file, completed) -&gt;
+  store: (namespace, file, completed) -&gt;
     blobTypedArray file, (arrayBuffer) -&gt;
       sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
 
-      uploadBlobby file, -&gt;
-        completed?(sha)
+      uploadBlobby namespace, file, -&gt;
+        completed?(<span class="string">"<span class="subst">#{namespace}</span>/<span class="subst">#{sha}</span>"</span>)
 
 <span class="function"><span class="title">blobTypedArray</span></span> = (blob, fn) -&gt;
   reader = <span class="keyword">new</span> FileReader()
@@ -55,12 +54,13 @@ module.exports =
 
   reader.readAsArrayBuffer(blob)
 
-<span class="function"><span class="title">uploadBlobby</span></span> = (blob, complete) -&gt;
+<span class="function"><span class="title">uploadBlobby</span></span> = (namespace, blob, complete) -&gt;
   url = <span class="string">"http://addressable.herokuapp.com"</span>
   <span class="comment"># url = "http://locohost:9393"</span>
 
   form = <span class="keyword">new</span> FormData
   form.append <span class="string">"data"</span>, blob
+  form.append <span class="string">"namespace"</span>, namespace
 
   request = <span class="keyword">new</span> XMLHttpRequest()
 

@@ -58,7 +58,7 @@ names = storage.get(key) <span class="keyword">or</span> {}
 <span class="comment"># origin request CloudFront will cache the wrong headers making it unusable, so don't</span>
 <span class="comment"># make a mistake!</span>
 <span class="function"><span class="title">urlForSha</span></span> = (sha, crossOrigin=<span class="literal">false</span>) -&gt;
-  n = parseInt(sha.substring(<span class="number">0</span>, <span class="number">1</span>), <span class="number">16</span>) % <span class="number">4</span>
+  n = parseInt(sha.split(<span class="string">"/"</span>).last().substring(<span class="number">0</span>, <span class="number">1</span>), <span class="number">16</span>) % <span class="number">4</span>
 
   url = <span class="string">"http://a<span class="subst">#{n}</span>.pixiecdn.com/<span class="subst">#{sha}</span>"</span>
 
