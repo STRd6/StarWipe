@@ -3,18 +3,16 @@ S3 CAS
 
 Store file blobs in a namespaced content addressable store.
 
-TODO: Namespacing of store
-
     CryptoJS = require "./crypto"
     SHA1 = CryptoJS.SHA1
 
     module.exports =
-      store: (file, completed) ->
+      store: (namespace, file, completed) ->
         blobTypedArray file, (arrayBuffer) ->
           sha = SHA1(CryptoJS.lib.WordArray.create(arrayBuffer)).toString()
 
-          uploadBlobby file, ->
-            completed?(sha)
+          uploadBlobby namespace, file, ->
+            completed?("#{namespace}/#{sha}")
 
     blobTypedArray = (blob, fn) ->
       reader = new FileReader()
@@ -24,12 +22,13 @@ TODO: Namespacing of store
 
       reader.readAsArrayBuffer(blob)
 
-    uploadBlobby = (blob, complete) ->
+    uploadBlobby = (namespace, blob, complete) ->
       url = "http://addressable.herokuapp.com"
       # url = "http://locohost:9393"
 
       form = new FormData
       form.append "data", blob
+      form.append "namespace", namespace
 
       request = new XMLHttpRequest()
 

@@ -26,7 +26,7 @@ Remember SHAs of resources.
     # origin request CloudFront will cache the wrong headers making it unusable, so don't
     # make a mistake!
     urlForSha = (sha, crossOrigin=false) ->
-      n = parseInt(sha.substring(0, 1), 16) % 4
+      n = parseInt(sha.split("/").last().substring(0, 1), 16) % 4
 
       url = "http://a#{n}.pixiecdn.com/#{sha}"
 

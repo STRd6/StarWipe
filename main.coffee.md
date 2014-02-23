@@ -20,8 +20,10 @@ Star Wipe
     engine.include require "./room_editor"
     engine.include require "./toolbox"
 
+    namespace = "starwipe"
+
     handleImage = ({file}) ->
-      S3CAS.store file, engine.addItem
+      S3CAS.store namespace, file, engine.addItem
 
     $(document).pasteImageReader handleImage
     $(document).dropImageReader handleImage
