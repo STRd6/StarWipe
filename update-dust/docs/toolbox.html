@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>toolbox</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="toolbox">Toolbox</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Locosto = require <span class="string">"./locosto"</span>
+
+{floor, min} = Math
+
+<span class="comment"># TODO: Item sets or scrollable items?</span>
+<span class="comment"># Page up/page down</span>
+
+<span class="function"><span class="title">scaleToContain</span></span> = (sprite, size) -&gt;
+  min <span class="number">1</span>, size / sprite.width, size / sprite.height
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  items = Object.keys(Locosto.names()).map (name) -&gt;
+    name: name
+    sprite: Locosto.sprite name
+  selectedIndex = <span class="number">0</span>
+  itemHeight = <span class="number">72</span>
+  itemWidth = <span class="number">72</span>
+
+  page = <span class="number">0</span>
+  pageSize = <span class="number">8</span>
+
+  self.<span class="literal">on</span> <span class="string">"overlay"</span>, (canvas) -&gt;
+    items.slice(page * pageSize, pageSize).forEach ({sprite}, i) -&gt;
+      scale = scaleToContain(sprite, itemHeight)
+      position = Point(itemWidth/<span class="number">2</span>, (i + <span class="number">0.5</span>) * itemHeight)
+      canvas.withTransform Matrix.translation(position.x, position.y), -&gt;
+        canvas.withTransform Matrix.scale(scale), -&gt;
+          sprite.draw(canvas, -sprite.width<span class="regexp">/2, -sprite.height/</span><span class="number">2</span>)
+
+    <span class="keyword">if</span> selectedIndex &lt; items.length
+      canvas.drawRect
+        x: <span class="number">0</span>
+        y: selectedIndex * itemHeight
+        width: itemWidth
+        height: itemHeight
+        color: <span class="string">"rgba(0, 255, 255, 0.25)"</span>
+
+  self.<span class="literal">on</span> <span class="string">"update"</span>, -&gt;
+    <span class="keyword">if</span> mousePressed.left
+      position = mousePosition.copy()
+
+      <span class="keyword">if</span> position.x &lt; itemWidth
+        selectedIndex = floor position.y / itemHeight
+
+    <span class="keyword">if</span> mousePressed.right
+      position = mousePosition.copy()
+
+      <span class="keyword">if</span> selectedIndex &lt; items.length
+        url = Locosto.url(items[selectedIndex].name)
+        self.add
+          class: <span class="string">"Puppet"</span>
+          spriteURL: url
+          x: position.x
+          y: position.y
+
+    <span class="keyword">if</span> justPressed.del
+      <span class="keyword">if</span> itemToRemove = items[selectedIndex + page * pageSize]
+        items.remove(itemToRemove)
+        Locosto.forget itemToRemove.name
+
+    <span class="keyword">if</span> justPressed.pageup
+      page += <span class="number">1</span>
+
+    <span class="keyword">if</span> justPressed.pagedown
+      page -= <span class="number">1</span>
+
+  self.extend
+    addItem: (sha) -&gt;
+      Locosto.remember sha, sha
+
+      items.push
+        name: sha
+        sprite: Locosto.sprite sha</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://www.danielx.net/require/v0.2.2.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
