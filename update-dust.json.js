@@ -105,7 +105,7 @@ window["STRd6/StarWipe:update-dust"]({
     "setup.coffee.md": {
       "path": "setup.coffee.md",
       "mode": "100644",
-      "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    # TODO: HAX\n    {extend} = require \"./lib/util\"\n    extend Object,\n      extend: extend\n\n    # Prevent browser contextmenu from popping up in games.\n    document.oncontextmenu = -> false\n\n    # Prevent default keypresses except for input fields\n    $(document).bind \"keydown\", (event) ->\n      event.preventDefault() unless $(event.target).is \"input\"\n",
+      "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    # TODO: HAX\n    {extend} = require \"./lib/util\"\n    extend Object,\n      extend: extend\n    \n    {Resource} = require \"dust\"\n\n    global.Sprite = Resource.Sprite\n\n    # Prevent browser contextmenu from popping up in games.\n    document.oncontextmenu = -> false\n\n    # Prevent default keypresses except for input fields\n    $(document).bind \"keydown\", (event) ->\n      event.preventDefault() unless $(event.target).is \"input\"\n",
       "type": "blob"
     },
     "test/sha1.coffee": {
@@ -200,7 +200,7 @@ window["STRd6/StarWipe:update-dust"]({
     },
     "setup": {
       "path": "setup",
-      "content": "(function() {\n  var extend;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  extend = require(\"./lib/util\").extend;\n\n  extend(Object, {\n    extend: extend\n  });\n\n  document.oncontextmenu = function() {\n    return false;\n  };\n\n  $(document).bind(\"keydown\", function(event) {\n    if (!$(event.target).is(\"input\")) {\n      return event.preventDefault();\n    }\n  });\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
+      "content": "(function() {\n  var Resource, extend;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  extend = require(\"./lib/util\").extend;\n\n  extend(Object, {\n    extend: extend\n  });\n\n  Resource = require(\"dust\").Resource;\n\n  global.Sprite = Resource.Sprite;\n\n  document.oncontextmenu = function() {\n    return false;\n  };\n\n  $(document).bind(\"keydown\", function(event) {\n    if (!$(event.target).is(\"input\")) {\n      return event.preventDefault();\n    }\n  });\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
       "type": "blob"
     },
     "test/sha1": {

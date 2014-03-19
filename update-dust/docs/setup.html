@@ -44,6 +44,10 @@ global.require = require
 extend Object,
   extend: extend
 
+{Resource} = require <span class="string">"dust"</span>
+
+global.Sprite = Resource.Sprite
+
 <span class="comment"># Prevent browser contextmenu from popping up in games.</span>
 document.<span class="function"><span class="title">oncontextmenu</span></span> = -&gt; <span class="literal">false</span>
 
