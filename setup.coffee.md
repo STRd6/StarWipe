@@ -11,6 +11,10 @@ Set up our runtime styles and expose some stuff for debugging.
     {extend} = require "./lib/util"
     extend Object,
       extend: extend
+    
+    {Resource} = require "dust"
+
+    global.Sprite = Resource.Sprite
 
     # Prevent browser contextmenu from popping up in games.
     document.oncontextmenu = -> false
