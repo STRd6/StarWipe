@@ -24,12 +24,6 @@ window["STRd6/StarWipe:update-dust"]({
       "content": "Draggin\n=======\n\nAn engine module that allows \"drag to move\" for objects.\n\n    module.exports = (I={}, self) ->\n      active = null\n      startPosition = null\n      objectStartPosition = null\n\n      self.on \"update\", ->\n        if mousePressed.left\n          startPosition = mousePosition.copy()\n          if active = self.objectAtScreenPosition(startPosition)\n            objectStartPosition = active.position()\n        else if mouseDown.left\n          # Drag\n          if active\n            delta = mousePosition.subtract(startPosition)\n            newPosition = objectStartPosition.add(delta)\n\n            active.position(newPosition)\n\n            self.setKeyframe active,\n              x: newPosition.x\n              y: newPosition.y\n\n        else if mouseReleased.left\n          active = null\n\n      ascendingZIndex = (a, b) ->\n        a.I.zIndex - b.I.zIndex\n\n      self.extend\n        # Get the object at a given screen position\n        objectAtScreenPosition: (screenPosition) ->\n          # TODO: Camera transforms\n          self.objectsUnderPoint(screenPosition).sort(ascendingZIndex).last()\n\n      return self\n",
       "type": "blob"
     },
-    "export.coffee.md": {
-      "path": "export.coffee.md",
-      "mode": "100644",
-      "content": "Export\n======\n\nExport game state as data\n\n    module.exports = (I={}, self) ->\n",
-      "type": "blob"
-    },
     "keyframes.coffee.md": {
       "path": "keyframes.coffee.md",
       "mode": "100644",
@@ -87,7 +81,7 @@ window["STRd6/StarWipe:update-dust"]({
     "puppet.coffee.md": {
       "path": "puppet.coffee.md",
       "mode": "100644",
-      "content": "Puppet\n======\n\n    GameObject = require(\"dust\").GameObject\n    Compositions = require(\"./lib/compositions\")\n    Keyframes = require \"./keyframes\"\n\n    # TODO: Expose this more gracefully\n    {defaults} = require \"./lib/util\"\n\n    Puppet = (I={}, self) ->\n      defaults I,\n        components: []\n\n      self = GameObject(I)\n\n      self.attrModels \"components\", Puppet\n\n      self.on \"draw\", (canvas) ->\n        self.components().invoke \"draw\", canvas\n\n      # TODO: Extract to a module \"autosize to sprite\"\n      self.on \"update\", ->\n        if sprite = self.sprite()\n          I.width = sprite.width\n          I.height = sprite.height\n\n      # TODO: Extract to a module \"zSort by y\"\n      self.on \"update\", ->\n        I.zIndex = I.y\n\n      self.include Keyframes\n\n      return self\n\n    engine.register \"Puppet\", Puppet\n\n    GameObject.defaultModules.push Compositions\n\n    module.exports = Puppet\n",
+      "content": "Puppet\n======\n\n    GameObject = require(\"dust\").GameObject\n    Compositions = require(\"./lib/compositions\")\n    Keyframes = require \"./keyframes\"\n\n    {defaults} = require \"./lib/util\"\n\n    Puppet = (I={}, self) ->\n      defaults I,\n        components: []\n\n      self = GameObject(I)\n\n      self.attrModels \"components\", Puppet\n\n      self.on \"draw\", (canvas) ->\n        self.components().invoke \"draw\", canvas\n\n      # TODO: Extract to a module \"autosize to sprite\"\n      self.on \"update\", ->\n        if sprite = self.sprite()\n          I.width = sprite.width\n          I.height = sprite.height\n\n      # TODO: Extract to a module \"zSort by y\"\n      self.on \"update\", ->\n        I.zIndex = I.y\n\n      self.include Keyframes\n\n      return self\n\n    engine.register \"Puppet\", Puppet\n\n    GameObject.defaultModules.push Compositions\n\n    module.exports = Puppet\n",
       "type": "blob"
     },
     "room_editor.coffee.md": {
@@ -131,11 +125,6 @@ window["STRd6/StarWipe:update-dust"]({
     "draggin": {
       "path": "draggin",
       "content": "(function() {\n  module.exports = function(I, self) {\n    var active, ascendingZIndex, objectStartPosition, startPosition;\n    if (I == null) {\n      I = {};\n    }\n    active = null;\n    startPosition = null;\n    objectStartPosition = null;\n    self.on(\"update\", function() {\n      var delta, newPosition;\n      if (mousePressed.left) {\n        startPosition = mousePosition.copy();\n        if (active = self.objectAtScreenPosition(startPosition)) {\n          return objectStartPosition = active.position();\n        }\n      } else if (mouseDown.left) {\n        if (active) {\n          delta = mousePosition.subtract(startPosition);\n          newPosition = objectStartPosition.add(delta);\n          active.position(newPosition);\n          return self.setKeyframe(active, {\n            x: newPosition.x,\n            y: newPosition.y\n          });\n        }\n      } else if (mouseReleased.left) {\n        return active = null;\n      }\n    });\n    ascendingZIndex = function(a, b) {\n      return a.I.zIndex - b.I.zIndex;\n    };\n    self.extend({\n      objectAtScreenPosition: function(screenPosition) {\n        return self.objectsUnderPoint(screenPosition).sort(ascendingZIndex).last();\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=draggin.coffee",
-      "type": "blob"
-    },
-    "export": {
-      "path": "export",
-      "content": "(function() {\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=export.coffee",
       "type": "blob"
     },
     "keyframes": {
