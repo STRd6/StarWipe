@@ -5,7 +5,6 @@ Puppet
     Compositions = require("./lib/compositions")
     Keyframes = require "./keyframes"
 
-    # TODO: Expose this more gracefully
     {defaults} = require "./lib/util"
 
     Puppet = (I={}, self) ->
