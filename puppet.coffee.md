@@ -6,7 +6,7 @@ Puppet
     Keyframes = require "./keyframes"
 
     # TODO: Expose this more gracefully
-    {defaults} = require "dust/util"
+    {defaults} = require "./lib/util"
 
     Puppet = (I={}, self) ->
       defaults I,
@@ -33,7 +33,7 @@ Puppet
 
       return self
 
-    GameObject.registry.Puppet = Puppet
+    engine.register "Puppet", Puppet
 
     GameObject.defaultModules.push Compositions
 

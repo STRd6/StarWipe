@@ -8,12 +8,12 @@ Star Wipe
 
     {width, height} = require "./pixie"
 
-    # Need to require to register constructor
-    require "./puppet"
-
-    engine = Dust.init
+    global.engine = Dust.init
       width: width
       height: height
+
+    # Need to require to register constructor
+    require "./puppet"
 
     engine.include require "./draggin"
     engine.include require "./selectin"

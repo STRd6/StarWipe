@@ -3,7 +3,7 @@ Keyframes
 
 Store animation info in keyframes
 
-    {extend, defaults} = require "dust/util"
+    {extend, defaults} = require "./lib/util"
     {keys} = Object
 
     lerp = (a, b, t) ->

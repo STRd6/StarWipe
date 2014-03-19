@@ -1,7 +1,7 @@
 Selectin
 ========
 
-    {extend} = require "dust/util"
+    {extend} = require "./lib/util"
 
     module.exports = (I={}, self) ->
       selected = null
